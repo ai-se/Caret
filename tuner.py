@@ -1,11 +1,7 @@
 from __future__ import division
 import random, pdb
-from main import *
-from base import *
-import collections
-# from file import *
-from scikitlearners2 import *
 from start2 import *
+from base import *
 
 
 class DeBase(object):
@@ -14,6 +10,7 @@ class DeBase(object):
     i.tobetuned = model.tunelst
     i.limit_max = model.tune_max
     i.limit_min = model.tune_min
+    i.model = model
     i.np = Settings.de.np
     i.fa = Settings.de.f
     i.cr = Settings.de.cr
@@ -46,7 +43,8 @@ class DeBase(object):
   def evaluate(i):
     for n, arglst in enumerate(i.frontier):
       i.assign(i.tobetuned, arglst)
-      i.scores[n] = i.callModel()  # main return [[pd,pf,prec,f,g],[pd,pf,prec,f,g]], which are N-defective,Y-defecitve
+      i.scores[n] = i.callModel()
+      # main return [[pd,pf,prec,f,g],[pd,pf,prec,f,g]], which are N-defective,Y-defecitve
 
   def assign(i, tobetuned, tunedvalue):
     for key, val in zip(tobetuned, tunedvalue):
@@ -64,7 +62,7 @@ class DeBase(object):
     return bestconf, bestscore
 
   def callModel(i):
-    raise NotImplementedError("callMode error")
+    return i.model.call()[-1]
 
   def treat(i):
     """
@@ -172,9 +170,6 @@ class WhereDE(DeBase):
       lst = i.treat(lst)
     return lst
 
-  def callModel(i):
-    return main()[-1]
-
 
 class CartDE(DeBase):
   def __init__(i, model):
@@ -183,8 +178,6 @@ class CartDE(DeBase):
   def treat(i, lst):
     return lst
 
-  def callModel(i):
-    return cart()[-1]
 
 
 class RfDE(DeBase):
@@ -194,8 +187,6 @@ class RfDE(DeBase):
   def treat(i, lst):
     return lst
 
-  def callModel(i):
-    return rf()[-1]
 
 
 if __name__ == "__main__":

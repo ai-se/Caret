@@ -89,7 +89,7 @@ class F6(BaseModel):
     return sum([math.floor(x + 0.5) ** 2 for x in lst])
 
 
-class F7(BaseModel):
+class F7(object):
   """
   test F7
   """
@@ -105,26 +105,7 @@ class F7(BaseModel):
                 for i, x in enumerate(lst)]) + random.random()
 
 
-
-class F8(BaseModel):
-  """
-  test F8
-  """
-
-  def __init__(self, hi=500, lo=-500):
-    super(F8, self).__init__(hi, lo)
-
-  def evaluate(self, lst):
-    pass
-
-
-  def evaluate(self, lst):
-    """
-    evaluate the function
-    """
-    return sum([x * x - 10 * math.cos(2 * math.pi * x) + 10 for x in lst])
-
-class F9(BaseModel):
+class F9(object):
   """
   test F9
   """

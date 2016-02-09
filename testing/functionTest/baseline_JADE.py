@@ -1,13 +1,10 @@
-"""
-this is the basic JADE implementation for demo
-"""
 from __future__ import division
 import random
 import pdb
 import numpy as np
 # import math
 from scipy.stats import cauchy
-import model
+from model import *
 
 
 class DeBase(object):
@@ -15,13 +12,12 @@ class DeBase(object):
     self.model = model
     self.np = 100
     self.p = int(100 * 0.05)
-    self.c = 0.1  ## this is set by JADE author
     self.u_cr = 0.5  # initial mean of normal distribution
     self.u_f = 0.5  # initial mean of cauchy distribution
     self.gen_f()
     self.gen_cr()
-    self.success_f = []  # list to store successful f's
-    self.success_cr = []  # list to store successful cr's
+    self.S_f = []  # list to store successful f's
+    self.S_cr = []  # list to store successful cr's
     self.repeats = repeats
     self.obj = 1  # 1 is for minimization
     self.evaluation = 0
@@ -36,15 +32,15 @@ class DeBase(object):
 
   def best(self):
     sortlst = []
-    if self.obj == 1:  # this is to minimize
-      sortlst = sorted(self.scores.items(), key=lambda x: x[-1], reverse=True)
+    if self.obj == 1:  # this is for pf
+      sortlst = sorted(self.scores.items(), key=lambda x: x[-1], reverse=True)  # alist of turple
     else:
       sortlst = sorted(self.scores.items(), key=lambda x: x[-1])  # alist of turple
     bestconf = [self.frontier[sortlst[i][0]] for i in xrange(-1 * self.p, 0)]
     bestscore = sortlst[-1][-1]
     return bestconf, bestscore
 
-  def call_model(self, lst):
+  def callModel(self, lst):
     raise NotImplementedError("callMode error")
 
   def treat(self, lst):
@@ -56,12 +52,7 @@ class DeBase(object):
     return NotImplementedError("treat error")
 
   def trim(self, x):
-    if x < self.model.min:
-      x = (x + self.model.min)/2
-    if x > self.model.max:
-      x =(x+ self.model.min) /2
-    # print x
-    return x
+    return max(self.model.min, min(x, self.model.max))
 
   def gen3(self, n, f):
     seen = [n]
@@ -74,23 +65,23 @@ class DeBase(object):
           break
       return self.frontier[k]
 
-    # pick_a = gen1(seen)
-    pick_b = gen1(seen)
-    pick_c = gen1(seen)
-    return pick_b, pick_c
+    a = gen1(seen)
+    b = gen1(seen)
+    c = gen1(seen)
+    return a, b, c
 
   def update(self, index, old):
     """
     generate new candidates
     """
     newf = []
-    pick_b, pick_c = self.gen3(index, old)
+    a, b, c = self.gen3(index, old)
     bestp = self.pickbest()
     for k in xrange(len(old)):
-      if self.cr[index] < random.random() or random.randint(0, len(old) - 1) == k:
-        newf.append(old[k])
-      else:
-        newf.append(self.trim((old[k] + self.fa[index] * (bestp[k] - old[k]) + self.fa[index] * (pick_b[k] - pick_c[k]))))
+      newf.append(old[k] if self.cr[index] < random.random() else self.trim(
+        (old[k] + self.fa[index] * (bestp[k] - old[k]) + self.fa[index] * (b[k] - c[k]))))
+      # newf.append(old[k] if self.cr[index] < random.random() or random.randint(0, len(old) - 1) == k else self.trim(
+      #   (old[k] + self.fa[index] * (bestp[k] - old[k]) + self.fa[index] * (b[k] - c[k]))))
     return self.treat(newf)
 
   def pickbest(self):
@@ -101,7 +92,8 @@ class DeBase(object):
     return self.bestconf[index]
 
   def update_mean1(self, old_val, mean_val):
-    val = (1 - self.c) * old_val + self.c * mean_val
+    c = 0.1  ## this is set by JADE author
+    val = (1 - c) * old_val + c * mean_val
     return val
 
   def lehmer_mean(self, SF):
@@ -118,8 +110,8 @@ class DeBase(object):
     return float(sum(Scr)) / len(Scr)
 
   def update_mean(self):
-    self.u_cr = self.update_mean1(self.u_cr, self.arithmetic_mean(self.success_cr))
-    self.u_f = self.update_mean1(self.u_f, self.lehmer_mean(self.success_f))
+    self.u_cr = self.update_mean1(self.u_cr, self.arithmetic_mean(self.S_cr))
+    self.u_f = self.update_mean1(self.u_f, self.lehmer_mean(self.S_f))
 
   def gen_cr(self):
     """
@@ -148,7 +140,7 @@ class DeBase(object):
     self.fa = lst[:]
     return
 
-  def run_de(self):
+  def de(self):
     """
     main de body
     """
@@ -161,16 +153,16 @@ class DeBase(object):
 
     for _ in xrange(self.repeats):
       nextgeneration = []
-      self.success_cr = []  ## clear before each generation
-      self.success_f = []  ## clear before each generation
+      self.S_cr = []  ## clear before each generation
+      self.S_f = []  ## clear before each generation
       for index, candidate in enumerate(self.frontier):
         new = self.update(index, candidate)
-        newscore = self.call_model(new)
+        newscore = self.callModel(new)
         self.evaluation += 1
         if better(newscore, self.scores[index]):
           nextgeneration.append(new)
-          self.success_cr.append(self.cr[index])  # add cr and fa if new candidate is better
-          self.success_f.append(self.fa[index])
+          self.S_cr.append(self.cr[index])  # add cr and fa if new candidate is better
+          self.S_f.append(self.fa[index])
           self.scores[index] = newscore
         else:
           nextgeneration.append(candidate)
@@ -195,13 +187,13 @@ class JADE(DeBase):
   def treat(self, lst):
     return lst
 
-  def call_model(self, lst):
+  def callModel(self, lst):
     return self.model.evaluate(lst)
 
 
-def run():
-  # test = [(1500,F1), (2000, F2 ),(5000,F4), (100, F6), (1500,F6),(3000, F7),(1000, F9)]
-  test = [ (1000, model.F9)]
+if __name__ == "__main__":
+  test = [(1500,F1), (2000, F2 ),(5000,F4), (100, F6), (1500,F6),(3000, F7),(1000, F9)]
+  # test = [(2000, F2)]
   for testcase in test:
     random.seed(1)
     result = []
@@ -209,10 +201,6 @@ def run():
     _model = testcase[1]
     for _ in xrange(50):
       X = JADE(_model(), _repeats)
-      result.append(X.run_de())
+      result.append(X.de())
     print _model().__class__.__name__ + " mean is:" + str(np.mean(result))
     print _model().__class__.__name__ + " std is:" + str(np.std(result))
-
-
-if __name__ == "__main__":
-  run()

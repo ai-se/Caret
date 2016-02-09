@@ -18,9 +18,13 @@ from newabcd import *
 def csv2py(f):
   if isinstance(f, list):
     tbl = [table(src) for src in f]  # tbl is a list of tables
+    t = tbl[0]
+    for i in range(1, len(tbl)):
+      t._rows += tbl[i]._rows
+    tbl = t
   else:
     tbl = table(f)
-  tbl_num = tbl[0] if isinstance(tbl, list) else tbl  # no symbol data col in defect data sets.
+  tbl_num = tbl  # no symbol data col in defect data sets.
   x = data(indep=[x.name for x in tbl_num.indep[:-1]], less=[x.name for x in tbl_num.depen],
            _rows=[row.cells for row in tbl_num._rows])
   return x
@@ -49,12 +53,22 @@ def clustertbl(f, tree, num2sym={}):
   return tbl1, row
 
 
-def buildtestdata1(f):  # build testdata from table
+def buildtestdata1(f, isdefect = False):  # build testdata from table
   actual = []
   testdata = []
-  tbl = table(f)
+  if isinstance(f, list):
+    tbl = [table(src) for src in f]  # tbl is a list of tables
+    t = tbl[0]
+    for i in range(1, len(tbl)):
+      t._rows += tbl[i]._rows
+    tbl = t
+  else:
+    tbl = table(f)
   for row in tbl._rows:
+    # if isdefect:
     actual += ["Defective" if row.cells[tbl.depen[0].col] > 0 else "Non-Defective"]
+    # else:
+    #   actual +=[str(row.cells[tbl.depen[0].col])]
     testdata += [row]
   return testdata, actual
 

@@ -117,6 +117,9 @@ class Read(object):
     return self.result
 
 
+
+
+
 if __name__ == '__main__':
   JADE_prec = Read('../result/1028/myresult2015-10-28 03:50:19prec').read()
   DE_prec =  Read('../result/0906/np=10_f_precision/myresult2015-09-06 18:44:48prec').read()

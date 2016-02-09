@@ -5,7 +5,6 @@ import math
 import datetime
 import time
 import re
-import pdb
 
 sys.dont_write_bytecode = True
 
@@ -36,7 +35,7 @@ class Options:
 
 
 Settings = Options(de=Options(np=10,
-                              repeats=100,
+                              repeats=1000,
                               f=0.75,
                               cr=0.3,
                               threshold=0.0001,

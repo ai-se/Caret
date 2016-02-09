@@ -21,15 +21,18 @@ def show(data_lst, goal_lst):
       combined = zip(val, label)
       y_sorted = sorted(combined, key=lambda x: x[0])
       # label_sorted = [i[-1] for i in y_sorted]
-      val_sorted = [i[0] for i in y_sorted]
+      val_sorted = [ij[0] for ij in y_sorted]
       plt.plot(x_aix, val_sorted, 'yo-', color=color[count], label=key)
       plt.legend(fontsize='small', loc=0)
       # for i,z in enumerate(x[:]):
       #   y = val_sorted[i]
       #   plt.annotate(label_sorted[i], xy = (z,y+5), textcoords = "data")
       count += 1
+    if i == 0:
+      plt.title("New training data sets V.S. Old training data sets")
     plt.ylabel(goal)
-  plt.xlabel('Data sets, sorted by improvements')
+  plt.xlabel("datasets, sorted by improments")
+
   plt.show()
 
 

@@ -24,35 +24,108 @@ class Compare(object):
     oldresult = result(self.old_path).read()
     newresult = result(self.new_path).read()
     for old, new in zip(oldresult[learner], newresult[learner]):
-      res.append(new - old)
+      try:
+        res.append(new - old)
+      except:
+        continue
     return res
 
   def tell(self):
     '''
     tell improvements of three learners
     '''
-    for learner in ['Tuned_Where', 'Tuned_CART', 'Tuned_RF']:
+    for learner in ['Naive_Where', 'Naive_CART', 'Naive_RF']:
       self.improve[learner] = self.calculate(learner)
     # pdb.set_trace()
     # print(self.improve)
     return self.improve
+  def tell_neg(self,data, goal):
 
-def JADE():
-  prec_DE = "../result/1102JADE_DE/myresult_DE_gen_202015-11-02 00:21:36prec"
-  prec_JADE = "../result/1102JADE_DE/myresult_JADE_gen_202015-11-01 09:30:57prec"
-  f_DE = "../result/1102JADE_DE/myresult_DE_gen_202015-11-02 05:13:38f"
-  f_JADE = "../result/1102JADE_DE/myresult_JADE_gen_202015-11-01 14:27:08f"
-  PREC = Compare(prec_DE, prec_JADE).tell()
-  F = Compare(f_DE, f_JADE).tell()
-  show([PREC,F],['PREC Improvements','F Improvements'])
+    print("="*10,goal,"="*10)
+    for key, val in data.iteritems():
+      first, second, third = int(len(val)*0.25), int(len(val)*0.5), int(len(val)*0.75)
+      sorted_data = sorted(val)
+      count = 0
+      for i in xrange(len(sorted_data)):
+        if sorted_data[i] <=0:
+          count +=1
+      print(key +' IQR:', str(sorted_data[first]),',', str(sorted_data[second]),',',str(sorted_data[third]))
+      print(' '*len(key) + ' num<0:',count)
+
+  def csv(self,name):
+    naive_learner = ['Naive_Where', 'Naive_CART', 'Naive_RF']
+    tuned_learner = ['Tuned_Where', 'Tuned_CART', 'Tuned_RF']
+
+    oldresult = result(self.old_path).read()
+    newresult = result(self.new_path).read()
+    res = "Name," +",".join(newresult["Dataset"])+'\n'
+    for j, aresult in enumerate([oldresult,newresult]):
+      for one in naive_learner:
+        if j == 0:
+          res += "Old_"+str(one) +"," + ",".join([str(i) for i in aresult[one]]) + '\n'
+        else:
+          res += "New_"+str(one) +"," + ",".join([str(i) for i in aresult[one]]) + '\n'
+    f = open("RX4_"+name+'.csv',"w")
+    f.write(res)
+
+
+  def csv_rx4(self,name):
+    naive_learner = ['Naive_Where', 'Naive_CART', 'Naive_RF']
+    tuned_learner = ['Tuned_Where', 'Tuned_CART', 'Tuned_RF']
+
+    # oldresult = result(self.old_path).read()
+    newresult = result(self.new_path).read()
+    res = "Name," +",".join(newresult["Dataset"])+'\n'
+    for j, aresult in enumerate([newresult]):
+      for naive, tuned in zip(naive_learner,tuned_learner):
+          res += "RX4_"+str(naive) +"," + ",".join([str(i) for i in aresult[naive]]) + '\n'
+          res += "RX4_"+str(tuned) +"," + ",".join([str(i) for i in aresult[tuned]]) + '\n'
+    f = open("RX4_"+name+'.csv',"w")
+    f.write(res)
+
+
+
+
+
+    #
+    # out = ""
+    # for key, val in data.iteritems():
+    #   out += key + "," +",".join([str(i) for i in val]) + "\n"
+    # print (goal, out)
+
+
 
 
 if __name__ == "__main__":
-  JADE()
   # prec_oldsrc = '../result/0906/np=10_f_precision/myresult2015-09-06 18:44:48prec'
   # prec_newsrc = '../result/1028/myresult2015-10-28 03:50:19prec'
   # f_oldsrc = "../result/0906/np=10_f_precision/myresult2015-09-06 21:56:38f"
   # f_newsrc ="../result/1028/myresult2015-10-28 05:32:42f"
-  # PREC = Compare(prec_oldsrc, prec_newsrc).tell()
-  # F = Compare(f_oldsrc, f_newsrc).tell()
-  # show([PREC,F],['PREC Improvements','F Improvements'])
+
+
+  # ######### new and old baseline experiment RX2 and RX3
+  # prec_oldsrc = "../result/0906/np=10_f_precision/myresult2015-09-06 18:44:48prec"
+  # prec_newsrc = "../result/1101/myresult2015-11-01 10:22:15prec"
+  # f_oldsrc = "../result/0906/np=10_f_precision/myresult2015-09-06 21:56:38f"
+  # f_newsrc = "../result/1101/myresult2015-11-01 10:31:37f"
+
+  ####### RX4 results
+  prec_newsrc = "../result/1103TuningAsTraining/myresult2015-11-03 09:22:16prec"
+  f_newsrc = "../result/1103TuningAsTraining/myresult2015-11-03 20:24:47f"
+  prec_oldsrc = prec_newsrc
+  f_oldsrc = f_newsrc
+  PREC = Compare(prec_oldsrc, prec_newsrc)
+  F = Compare(f_oldsrc, f_newsrc)
+
+  ###### plots ######
+  # PREC.tell_neg(PREC.tell(),"PREC")
+  # F.tell_neg(F.tell(),"F")
+  # show([PREC.tell(),F.tell()],['PREC Improvements','F Improvements'])
+
+  #  generate csv file of results
+  PREC.csv_rx4("PREC")
+  F.csv_rx4("F")
+
+
+
+
