@@ -40,7 +40,7 @@ def sk_abcd(pred_lst, actual_lst):
 
   def score(label, show = False):
     out = []
-    for i in ['Non-Defective', 'Defective']:
+    for i in label:
       pd = pf = prec = f = g = w = acc = 0
       a = A.get(i,0);b = B.get(i,0);c = C.get(i,0);d = D.get(i,0)
       if b + d: pd = d / (b + d)
