@@ -138,8 +138,8 @@ class DeBase(object):
       i.frontier = nextgeneration[:]
       newbestconf, newbestscore = i.best()
       if isBetter(newbestscore, i.bestscore):
-        print "newbestscore %s:" % str(newbestscore)
-        print "bestconf %s :" % str(newbestconf)
+        # print "newbestscore %s:" % str(newbestscore)
+        # print "bestconf %s :" % str(newbestconf)
         i.bestscore = newbestscore
         i.bestconf = newbestconf[:]
         changed = True
@@ -148,9 +148,9 @@ class DeBase(object):
       changed = False
     i.assign(i.tobetuned, i.bestconf)
     i.writeResults()
-    print "final bestescore %s: " +str(i.bestscore)
-    print "final bestconf %s: " +str(i.bestconf)
-    print "DONE !!!!"
+    # print "final bestescore %s: " +str(i.bestscore)
+    # print "final bestconf %s: " +str(i.bestconf)
+    # print "DONE !!!!"
 
 
 class WhereDE(DeBase):
