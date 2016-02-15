@@ -30,7 +30,7 @@ def start(obj,path="./data", isSMOTE= False):
     NDef = learner + ": N-Def"
     YDef = learner + ": Y-Def"
     for j, s in enumerate(lst):
-      # s[NDef] = s.get(NDef, []) + [(float(score[0][j] / 100))]
+      s[NDef] = s.get(NDef, []) + [(float(score[0][j] / 100))]
       s[YDef] = s.get(YDef, []) + [(float(score[1][j] / 100))]
       # [YDef] will void to use myrdiv.
 
@@ -61,7 +61,6 @@ def start(obj,path="./data", isSMOTE= False):
     data = [join(nextpath, f) for f in listdir(nextpath)
             if isfile(join(nextpath, f)) and ".DS" not in f]
     for i in range(len(data)):
-      random.seed(1)
       pd, pf, prec, F, g= {}, {}, {}, {}, {}
       lst = [pd, pf, prec, F, g]
       expname = folder + "V" + str(i)
@@ -81,14 +80,17 @@ def start(obj,path="./data", isSMOTE= False):
       writefile(title)
       writefile("Dataset: "+expname)
       for model in [CART]:  # add learners here!
-        for task in ["Grid_"]:
+        for task in ["Tuned_","Naive_","Grid_"]:
+          random.seed(1)
           writefile("-"*30+"\n")
           timeout = time.time()
           name = task + model.__name__
           thislearner = model(train, tune, predict)
           # keep(name, thislearner.tuned() if task == "Tuned_" else thislearner.untuned())
           if task == "Tuned_":
-            keep(name, thislearner.tuned())
+            for _ in xrange(20):
+              temp=thislearner.tuned()
+              keep(name, temp)
           elif task == "Naive_":
             keep(name, thislearner.untuned())
           elif task == "Grid_":
