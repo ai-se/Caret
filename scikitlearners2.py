@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.naive_bayes import GaussianNB
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.cross_validation import StratifiedKFold
 from main import *
 from newabcd import sk_abcd
 import pandas as pd
@@ -35,6 +36,8 @@ def N_Abcd(predicted, actual):
   for data in predicted:
     predicted_txt += [isDef(data)]  # this is for defect prediction, binary classes
     # predicted_txt.append(data)  # for multiple classes, just use it
+  import pdb
+  # pdb.set_trace()
   score = sk_abcd(predicted_txt, actual)
   return score
 
@@ -42,17 +45,36 @@ def N_Abcd(predicted, actual):
 def learn(clf):
   def conv(x):
     return [float(i) for i in x]
+  predict_result,actual = None,None
 
-  testdata, actual = buildtestdata1(The.data.predict)
-  traintable = csv2py(The.data.train)
-  traindata_X = [conv(row.cells[:-1]) for row in traintable._rows]
-  traindata_Y = [(row.cells[-1]) for row in traintable._rows]
-  predictdata_X = [conv(row.cells[:-1]) for row in testdata]
-  predictdata_Y = [(row.cells[-1]) for row in testdata]
-  clf = clf.fit(traindata_X, traindata_Y)
-  array = clf.predict(predictdata_X)
-  predictresult = [i for i in array]
-  scores = N_Abcd(predictresult, actual)
+  if not The.option.tuning:  # this is the non-tuning case.
+    testdata, actual = buildtestdata1(The.data.predict)
+    traintable = csv2py(The.data.train)
+    traindata_X = [conv(row.cells[:-1]) for row in traintable._rows]
+    traindata_Y = [(row.cells[-1]) for row in traintable._rows]
+    predictdata_Y = [(row.cells[-1]) for row in testdata]
+    predictdata_X = [conv(row.cells[:-1]) for row in testdata]
+    clf = clf.fit(traindata_X, traindata_Y)
+    array = clf.predict(predictdata_X)
+    predict_result = [i for i in array]
+
+  else: # this is for DE tuning, using the first fold of StratifiedKfold
+    traintable = csv2py([The.data.train, The.data.predict])
+    traindata_X = np.array([conv(row.cells[:-1]) for row in traintable._rows])
+    traindata_Y = np.array([(row.cells[-1]) for row in traintable._rows])
+    index_train_tune =[(train, test)for train,test in StratifiedKFold(traindata_Y, n_folds=2, random_state=1)] # here n_folds is hard-coded to 2
+    new_train_X = traindata_X[index_train_tune[0][0]] # the first fold as train
+    new_train_Y = traindata_Y[index_train_tune[0][0]] # the first fold as train
+    new_test_X = traindata_X[index_train_tune[0][1]] # the second fold as test
+    new_test_Y = traindata_Y[index_train_tune[0][1]] # the second fold as test
+    clf = clf.fit(new_train_X, new_train_Y)
+    actual = []
+    for  i in new_test_Y:
+      actual += ["Defective" if i > 0 else "Non-Defective"]
+    array = clf.predict(new_test_X)
+    predict_result = [i for i in array]
+
+  scores = N_Abcd(predict_result, actual)
   return scores
 
 # def learn(clf,class_col = 0):
