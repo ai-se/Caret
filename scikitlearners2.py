@@ -62,6 +62,7 @@ def learn(clf):
     traintable = csv2py([The.data.train, The.data.predict])
     traindata_X = np.array([conv(row.cells[:-1]) for row in traintable._rows])
     traindata_Y = np.array([(row.cells[-1]) for row in traintable._rows])
+    traindata_Y = np.array([1 if i >0 else 0 for i in traindata_Y ])
     index_train_tune =[(train, test)for train,test in StratifiedKFold(traindata_Y, n_folds=2, random_state=1)] # here n_folds is hard-coded to 2
     new_train_X = traindata_X[index_train_tune[0][0]] # the first fold as train
     new_train_Y = traindata_Y[index_train_tune[0][0]] # the first fold as train
