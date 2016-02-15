@@ -5,6 +5,7 @@ from sklearn import metrics
 import pdb
 from settings import *
 
+
 def sk_abcd(pred_lst, actual_lst):
   # f1_Def = metrics.f1_score(actual,predicted_txt,pos_label = "Defective")*100
   # f1_NonDef = metrics.f1_score(actual,predicted_txt, pos_label = "Non-Defective")*100
@@ -16,12 +17,18 @@ def sk_abcd(pred_lst, actual_lst):
   # return score
   n = lambda x: int(x)
   p = lambda x: int(x * 100)
+
   def getLabel():
     label = []
     for i in actual_lst:
       if i not in label:
         label.append(i)
     return label
+
+  def get_auc(pred, actual):
+    y_predict = [1 if i == "Defective" else 0 for i in pred]
+    y_actual = [1 if i == "Defective" else 0 for i in actual]
+    return metrics.roc_auc_score(y_actual, y_predict)
 
   def getABCD(label):
     for actual, predict in zip(actual_lst, pred_lst):
@@ -36,31 +43,39 @@ def sk_abcd(pred_lst, actual_lst):
             C[i] = C.get(i, 0) + 1
           else:
             A[i] = A.get(i, 0) + 1
-    return A, B, C,D
+    return A, B, C, D
 
-  def score(label, show = False):
+  def score(label, show=False):
     out = []
-    for i in ['Non-Defective','Defective']:
+    for i in ['Non-Defective', 'Defective']:
       pd = pf = prec = f = g = w = acc = 0
-      a = A.get(i,0);b = B.get(i,0);c = C.get(i,0);d = D.get(i,0)
+      a = A.get(i, 0)
+      b = B.get(i, 0)
+      c = C.get(i, 0)
+      d = D.get(i, 0)
       if b + d: pd = d / (b + d)
       if a + c: pf = c / (a + c)
       if c + d: prec = d / (c + d)
       if prec + pd: f = 2 * pd * prec / (pd + prec)
       if pd + 1 - pf: g = 2 * pd * (1 - pf) / (1 - pf + pd)
-      if pd + 1-pf+ prec :w = 3* pd*(1-pf)*prec /(1-pf+pd+prec)
+      if pd + 1 - pf + prec: w = 3 * pd * (1 - pf) * prec / (1 - pf + pd + prec)
       if a + b + c + d: acc = (a + d) / (a + b + c + d)
       if show:
         print "#", (
-        '{0:20s}{1:10s} {2:4d} {3:4d} {4:4d} ' +
-        '{5:4d} {6:4d} {7:4d} {8:3d} {9:3d} ' +
-        '{10:3d} {11:3d} {12:3d} {''13:10s}').format(
-        "hello","test", n(b + d), n(a), n(b), n(c),
-        n(d), p(acc), p(pd), p(pf), p(prec), p(f), p(g), i)
-      out+=[[p(pd), p(pf), p(prec), p(f), p(g),p(w)]]
+          '{0:20s}{1:10s} {2:4d} {3:4d} {4:4d} ' +
+          '{5:4d} {6:4d} {7:4d} {8:3d} {9:3d} ' +
+          '{10:3d} {11:3d} {12:3d} {''13:10s}').format(
+          "hello", "test", n(b + d), n(a), n(b), n(c),
+          n(d), p(acc), p(pd), p(pf), p(prec), p(f), p(g), i)
+      out += [[p(pd), p(pf), p(prec), p(f), p(g), p(w)]]
     return out
 
-  A = {}; B ={}; C ={}; D = {}
+  auc = int(get_auc(pred_lst,actual_lst)*100)
+  A,B,C,D = {},{},{},{}
   labels = getLabel()
-  A,B,C,D = getABCD(labels)
-  return score(labels)
+  A, B, C, D = getABCD(labels)
+  out = score(labels)
+  out[0].append(auc)
+  out[1].append(auc)
+  pdb.set_trace()
+  return out

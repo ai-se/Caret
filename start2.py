@@ -30,7 +30,7 @@ def start(obj, path="./data", isSMOTE=False):
     NDef = learner + ": N-Def"
     YDef = learner + ": Y-Def"
     for j, s in enumerate(lst):
-      s[NDef] = s.get(NDef, []) + [(float(score[0][j] / 100))]
+      # s[NDef] = s.get(NDef, []) + [(float(score[0][j] / 100))]
       s[YDef] = s.get(YDef, []) + [(float(score[1][j] / 100))]
       # [YDef] will void to use myrdiv.
 
@@ -57,7 +57,7 @@ def start(obj, path="./data", isSMOTE=False):
       return stat
 
     print "\n" + "+" * 20 + "\n DataSet: " + dataname + "\n" + "+" * 20
-    obj = ["pd", "pf", "prec", "f", "g"]
+    obj = ["pd", "pf", "prec", "f", "g","auc"]
     for j, k in enumerate(obj):
       express = "\n" + "*" * 10 + " " + k + " " + "*" * 10
       print express
@@ -66,23 +66,25 @@ def start(obj, path="./data", isSMOTE=False):
       if j == The.option.tunedobjective:
         count_better(lst[j])
       rdivDemo(myrdiv(lst[j]))
-    print "\n In terms of " + obj[The.option.tunedobjective] + " : the times of better tuners are" + str(which_is_better)
+    out_better = "\n In terms of " + obj[The.option.tunedobjective] + " : the times of better tuners are" + str(which_is_better)
+    print out_better
+    writefile(out_better)
     writefile("End time :" + strftime("%Y-%m-%d %H:%M:%S") + "\n" * 2)
     print "\n"
 
   global The
   which_is_better = {}
   The.option.tunedobjective = obj  # 0->pd, 1->pf,2->prec, 3->f, 4->g
-  objectives = {0: "pd", 1: "pf", 2: "prec", 3: "f", 4: "g"}
+  objectives = {0: "pd", 1: "pf", 2: "prec", 3: "f", 4: "g",5:"auc"}
   createfile(objectives[The.option.tunedobjective])
   folders = [f for f in listdir(path) if not isfile(join(path, f))]
-  for folder in folders[:1]:
+  for folder in folders[:]:
     nextpath = join(path, folder)
     data = [join(nextpath, f) for f in listdir(nextpath)
             if isfile(join(nextpath, f)) and ".DS" not in f]
     for i in range(len(data)):
-      pd, pf, prec, F, g = {}, {}, {}, {}, {}
-      lst = [pd, pf, prec, F, g]
+      pd, pf, prec, F, g, auc = {}, {}, {}, {}, {},{}
+      lst = [pd, pf, prec, F, g,auc]
       expname = folder + "V" + str(i)
       try:
         predict = data[i + 2]
@@ -108,7 +110,7 @@ def start(obj, path="./data", isSMOTE=False):
           thislearner = model(train, tune, predict)
           # keep(name, thislearner.tuned() if task == "Tuned_" else thislearner.untuned())
           if task == "Tuned_":
-            for _ in xrange(5):
+            for _ in xrange(20):
               temp = thislearner.tuned()
               keep(name, temp)
           elif task == "Naive_":
@@ -123,5 +125,5 @@ def start(obj, path="./data", isSMOTE=False):
 
 if __name__ == "__main__":
   # SMOTE()
-  for i in [2, 3]:
+  for i in [5]:
     start(i)
