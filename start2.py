@@ -8,12 +8,12 @@ from smote import *
 from os import getenv
 from learner import *
 import time
-from gridSearch import  *
+from gridSearch import *
 
 
 def createfile(objective):
   home_path = getenv("HOME")
-  The.option.resultname = (home_path+'/Google Drive/EXP/myresult'
+  The.option.resultname = (home_path + '/Google Drive/EXP/myresult'
                            + strftime("%Y-%m-%d %H:%M:%S") + objective)
   f = open(The.option.resultname, 'w').close()
 
@@ -25,7 +25,7 @@ def writefile(s):
   f.close()
 
 
-def start(obj,path="./data", isSMOTE= False):
+def start(obj, path="./data", isSMOTE=False):
   def keep(learner, score):  # keep stats from run
     NDef = learner + ": N-Def"
     YDef = learner + ": Y-Def"
@@ -35,6 +35,20 @@ def start(obj,path="./data", isSMOTE= False):
       # [YDef] will void to use myrdiv.
 
   def printResult(dataname):
+    def count_better(dicts):
+      temp = {}
+      learner_name = set([ i[i.index("_")+1:i.index(":")]for i in dicts.keys()])
+      for key, val in dicts.iteritems():
+        if "Y-Def" in key and ("Tuned_" in key or "Grid_" in key):
+          temp[key] = np.median(val)
+      for each in learner_name:
+        tune = "Tuned_"+each + ": Y-Def"
+        grid = "Grid_"+each+": Y-Def"
+        if temp[tune] >= temp[grid]:
+          which_is_better[tune] = which_is_better.get(tune,0) +1
+        else:
+          which_is_better[grid] = which_is_better.get(grid,0) +1
+
     def myrdiv(d):
       stat = []
       for key, val in d.iteritems():
@@ -43,16 +57,22 @@ def start(obj,path="./data", isSMOTE= False):
       return stat
 
     print "\n" + "+" * 20 + "\n DataSet: " + dataname + "\n" + "+" * 20
-    for j, k in enumerate(["pd", "pf", "prec", "f", "g"]):
-      express = "\n" + "*" * 10 + " "+k +" "+ "*" * 10
+    obj = ["pd", "pf", "prec", "f", "g"]
+    for j, k in enumerate(obj):
+      express = "\n" + "*" * 10 + " " + k + " " + "*" * 10
       print express
       writefile(express)
+      # pdb.set_trace()
+      if j == The.option.tunedobjective:
+        count_better(lst[j])
       rdivDemo(myrdiv(lst[j]))
+    print "\n In terms of " + obj[The.option.tunedobjective] + " : the times of better tuners are" + str(which_is_better)
     writefile("End time :" + strftime("%Y-%m-%d %H:%M:%S") + "\n" * 2)
     print "\n"
 
   global The
-  The.option.tunedobjective = obj # 0->pd, 1->pf,2->prec, 3->f, 4->g
+  which_is_better = {}
+  The.option.tunedobjective = obj  # 0->pd, 1->pf,2->prec, 3->f, 4->g
   objectives = {0: "pd", 1: "pf", 2: "prec", 3: "f", 4: "g"}
   createfile(objectives[The.option.tunedobjective])
   folders = [f for f in listdir(path) if not isfile(join(path, f))]
@@ -61,41 +81,41 @@ def start(obj,path="./data", isSMOTE= False):
     data = [join(nextpath, f) for f in listdir(nextpath)
             if isfile(join(nextpath, f)) and ".DS" not in f]
     for i in range(len(data)):
-      pd, pf, prec, F, g= {}, {}, {}, {}, {}
+      pd, pf, prec, F, g = {}, {}, {}, {}, {}
       lst = [pd, pf, prec, F, g]
       expname = folder + "V" + str(i)
       try:
         predict = data[i + 2]
-        tune = data[i+1]
+        tune = data[i + 1]
         if isSMOTE:
-          train = ["./Smote"+ data[i][1:]]
+          train = ["./Smote" + data[i][1:]]
         else:
           train = data[i]
       except IndexError, e:
         print folder + " done!"
         break
-      title =  ("Tuning objective: " +objectives[The.option.tunedobjective]
-                + "\nBegin time: " + strftime("%Y-%m-%d %H:%M:%S"))
+      title = ("Tuning objective: " + objectives[The.option.tunedobjective]
+               + "\nBegin time: " + strftime("%Y-%m-%d %H:%M:%S"))
       # pdb.set_trace()
       writefile(title)
-      writefile("Dataset: "+expname)
-      for model in [CART]:  # add learners here!
-        for task in ["Tuned_","Naive_","Grid_"]:
+      writefile("Dataset: " + expname)
+      for model in [CART, RF]:  # add learners here!
+        for task in ["Tuned_", "Naive_", "Grid_"]:
           random.seed(1)
-          writefile("-"*30+"\n")
+          writefile("-" * 30 + "\n")
           timeout = time.time()
           name = task + model.__name__
           thislearner = model(train, tune, predict)
           # keep(name, thislearner.tuned() if task == "Tuned_" else thislearner.untuned())
           if task == "Tuned_":
-            for _ in xrange(20):
-              temp=thislearner.tuned()
+            for _ in xrange(5):
+              temp = thislearner.tuned()
               keep(name, temp)
           elif task == "Naive_":
             keep(name, thislearner.untuned())
           elif task == "Grid_":
-            keep(name, gridSearch(thislearner,objectives[The.option.tunedobjective]))
-          run_time =name + " Running Time: " + str(round(time.time() - timeout, 3))
+            keep(name, gridSearch(thislearner, objectives[The.option.tunedobjective]))
+          run_time = name + " Running Time: " + str(round(time.time() - timeout, 3))
           print run_time
           writefile(run_time)
       printResult(expname)
@@ -103,6 +123,5 @@ def start(obj,path="./data", isSMOTE= False):
 
 if __name__ == "__main__":
   # SMOTE()
-  for i in [2,3]:
+  for i in [2, 3]:
     start(i)
-
