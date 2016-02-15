@@ -7,11 +7,19 @@ from scikitlearners2 import *
 def getParam(learner):
   params = None
   if learner.__class__.__name__.lower() == "cart":
-    params = [{'max_features': np.arange(0.01, 1, 0.1),
-               'max_depth': np.arange(1, 51, 5),
-               'min_samples_split': np.arange(2, 20, 5),
-               'min_samples_leaf': np.arange(2, 20, 5)}]
-  clf = DecisionTreeClassifier
+    params = [{'max_features': random.sample(np.arange(0.01, 1,0.01),4 ),
+               'max_depth': random.sample(range(1, 51), 4),
+               'min_samples_split': random.sample(range(2, 20), 3),
+               'min_samples_leaf': random.sample(range(2, 20), 3)}]
+    clf = DecisionTreeClassifier
+  elif learner.__class__.__name__.lower() == "rf":
+    params = [{'n_estimators':random.sample(range(50,151),2),
+              'max_features':random.sample(np.arange(0.01,1.0,0.01),3),
+              'min_samples_split':random.sample(range(1,21),3),
+              'min_samples_leaf':random.sample(range(2,21),3),
+              'max_leaf_nodes':random.sample(range(10,51),3)}]
+    clf = RandomForestClassifier
+
   return clf, params
 
 
