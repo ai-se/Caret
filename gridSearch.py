@@ -29,10 +29,10 @@ def getScoring(goal):
     raise ValueError("this goal is not implemented by scikit-learn!")
   return scoring
 
-def getData(learner):
+def getData(train_src):
   def conv(x):
     return [float(i) for i in x]
-  train_src = [learner.train,learner.tune] ### remember, here, used both train and tune
+  # train_src = [learner.train,learner.tune] ### remember, here, used both train and tune
   traintable = csv2py(train_src)
   traindata_X = [conv(row.cells[:-1]) for row in traintable._rows]
   traindata_Y = [(row.cells[-1]) for row in traintable._rows]
@@ -61,14 +61,14 @@ def predict(test_src,clf_fitted):
 def gridSearch(learner, goal):
   clf_init, parameters = getParam(learner)
   score_fun = getScoring(goal)
-  train_X, train_Y = getData(learner)
-  clf = grid_search.GridSearchCV(clf_init(random_state=1), parameters, cv=5, scoring=score_fun, refit=True)
+  train_X, train_Y = getData([learner.train, learner.tune])
+  clf = grid_search.GridSearchCV(clf_init(random_state=1), parameters, cv=2, scoring=score_fun, refit=True)
   clf.fit(train_X,train_Y)
   best_params = clf.best_params_
   best_params["random_state"] = 1
   clf_fitted = clf_init(**best_params)
   clf_fitted.fit(train_X,train_Y)
   scores = predict(learner.test,clf_fitted)
-  pdb.set_trace()
+  # pdb.set_trace()
   return scores
 
