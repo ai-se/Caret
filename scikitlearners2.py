@@ -1,5 +1,5 @@
 from __future__ import division, print_function
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.naive_bayes import GaussianNB
 from sklearn import linear_model
@@ -29,15 +29,13 @@ def N_Abcd(predicted, actual):
   global The
 
   def isDef(x):
-    return "Defective" if x >= The.option.threshold else "Non-Defective"
+    return "Defective" if x >= 0.5 else "Non-Defective"
     # use the.option.threshold for cart,
     # rf and where!!
 
   for data in predicted:
     predicted_txt += [isDef(data)]  # this is for defect prediction, binary classes
     # predicted_txt.append(data)  # for multiple classes, just use it
-  import pdb
-  # pdb.set_trace()
   score = sk_abcd(predicted_txt, actual)
   return score
 
@@ -52,11 +50,13 @@ def learn(clf):
     traintable = csv2py(The.data.train)
     traindata_X = [conv(row.cells[:-1]) for row in traintable._rows]
     traindata_Y = [(row.cells[-1]) for row in traintable._rows]
+    traindata_Y = np.array([1 if i >0 else 0 for i in traindata_Y ])
     predictdata_Y = [(row.cells[-1]) for row in testdata]
     predictdata_X = [conv(row.cells[:-1]) for row in testdata]
     clf = clf.fit(traindata_X, traindata_Y)
     array = clf.predict(predictdata_X)
     predict_result = [i for i in array]
+    # pdb.set_trace()
 
   else: # this is for DE tuning, using the first fold of StratifiedKfold
     traintable = csv2py([The.data.train, The.data.predict])
@@ -77,25 +77,6 @@ def learn(clf):
 
   scores = N_Abcd(predict_result, actual)
   return scores
-
-# def learn(clf,class_col = 0):
-#   def cov(data):
-#     lst = [ "Delay" if i !="Nondelay" else i for i in data ]
-#     return lst
-#   def build(src):
-#     df = pd.read_csv(src,header = 0)
-#     train_Y =np.asarray(cov(df.ix[:,class_col].as_matrix()))
-#     df = df._get_numeric_data()
-#     train_X = df.as_matrix() # numpy array with numeric
-#     return train_X, train_Y
-#
-#   train_X, train_Y = build(The.data.train[0])
-#   test_X,test_Y = build(The.data.predict[0])
-#   clf = clf.fit(train_X, train_Y)
-#   array = clf.predict(test_X)
-#   predictresult = [i for i in array]
-#   scores = _Abcd(predictresult, test_Y)
-#   return scores
 
 
 def cart():
