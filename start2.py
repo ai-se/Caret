@@ -25,7 +25,7 @@ def writefile(s):
     f.close()
 
 
-def start(obj, path="./data", isSMOTE=False):
+def start(obj, path="./data", isSMOTE=False, repeats=5):
     def keep(learner, score):  # keep stats from run
         NDef = learner + ": N-Def"
         YDef = learner + ": Y-Def"
@@ -103,7 +103,7 @@ def start(obj, path="./data", isSMOTE=False):
             writefile(title)
             writefile("Dataset: " + expname)
             for model in [CART, RF]:  # add learners here!
-                for task in ["Tuned_", "Naive_", "Grid_"]:
+                for task in ["Naive_","Tuned_","Grid_"]:
                     random.seed(1)
                     writefile("-" * 30 + "\n")
                     timeout = time.time()
@@ -111,14 +111,16 @@ def start(obj, path="./data", isSMOTE=False):
                     thislearner = model(train, tune, predict)
                     # keep(name, thislearner.tuned() if task == "Tuned_" else thislearner.untuned())
                     if task == "Tuned_":
-                        for _ in xrange(20):
+                        for _ in xrange(repeats):
                             temp = thislearner.tuned()
                             keep(name, temp)
                     elif task == "Naive_":
                         keep(name, thislearner.untuned())
                     elif task == "Grid_":
-                        keep(name, gridSearch(thislearner, objectives[The.option.tunedobjective]))
-                    run_time = name + " Running Time: " + str(round(time.time() - timeout, 3))
+                        for _ in xrange(repeats):
+                            temp = gridSearch(thislearner, objectives[The.option.tunedobjective])
+                            keep(name, temp)
+                    run_time = name + " Running Time: " + str(round(time.time() - timeout, 3)/repeats)
                     print run_time
                     writefile(run_time)
             printResult(expname)
@@ -126,5 +128,5 @@ def start(obj, path="./data", isSMOTE=False):
 
 if __name__ == "__main__":
     # SMOTE()
-    for i in [5]:
+    for i in [2,3,5]:
         start(i)
