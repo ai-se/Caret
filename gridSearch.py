@@ -32,8 +32,10 @@ def getScoring(goal):
   elif goal.lower() =="prec":
     scoring = 'precision'
   elif goal.lower() == "f":
-    scoring = 'f1_weighted'
-  elif goal.lower() =="g":
+    scoring = 'f1'
+  elif goal.lower() == "auc":
+    scoring = 'roc_auc'
+  else:
     raise ValueError("this goal is not implemented by scikit-learn!")
   return scoring
 
