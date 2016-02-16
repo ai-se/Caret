@@ -7,18 +7,18 @@ from scikitlearners2 import *
 def getParam(learner):
   params = None
   if learner.__class__.__name__.lower() == "cart":
-    params = [{'max_features': random.sample(np.arange(0.01, 1,0.01),4 ),
-               'max_depth': random.sample(range(1, 51), 4),
+    params = [{'max_features': random.sample(np.arange(0.01, 1,0.1),4 ),
+               'max_depth': random.sample(range(1, 51), 3),
                'min_samples_split': random.sample(range(2, 20), 3),
                'min_samples_leaf': random.sample(range(2, 20), 3)}]
-    clf = DecisionTreeClassifier
+    clf = DecisionTreeRegressor
   elif learner.__class__.__name__.lower() == "rf":
-    params = [{'n_estimators':random.sample(range(50,151),2),
-              'max_features':random.sample(np.arange(0.01,1.0,0.01),3),
-              'min_samples_split':random.sample(range(1,21),3),
+    params = [{'n_estimators':random.sample(range(50,151),3),
+              'max_features':random.sample(np.arange(0.01,1.0,0.1),3),
+              'min_samples_split':random.sample(range(1,21),2),
               'min_samples_leaf':random.sample(range(2,21),3),
-              'max_leaf_nodes':random.sample(range(10,51),3)}]
-    clf = RandomForestClassifier
+              'max_leaf_nodes':random.sample(range(10,51),2)}]
+    clf = RandomForestRegressor
 
   return clf, params
 
