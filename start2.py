@@ -37,7 +37,8 @@ def start(obj, path="./data", isSMOTE=False, repeats=5):
     def printResult(dataname):
         def count_better(dicts):
             temp = {}
-            learner_name = set([i[i.index("_") + 1:i.index(":")] for i in dicts.keys()])
+            learner_name = set(
+                [i[i.index("_") + 1:i.index(":")] for i in dicts.keys()])
             for key, val in dicts.iteritems():
                 if "Y-Def" in key and ("Tuned_" in key or "Grid_" in key):
                     temp[key] = np.median(val)
@@ -66,7 +67,8 @@ def start(obj, path="./data", isSMOTE=False, repeats=5):
             if j == The.option.tunedobjective:
                 count_better(lst[j])
             rdivDemo(myrdiv(lst[j]))
-        out_better = "\n In terms of " + obj[The.option.tunedobjective] + " : the times of better tuners are" + str(
+        out_better = "\n In terms of " + obj[
+            The.option.tunedobjective] + " : the times of better tuners are" + str(
             which_is_better)
         print out_better
         writefile(out_better)
@@ -97,13 +99,14 @@ def start(obj, path="./data", isSMOTE=False, repeats=5):
             except IndexError, e:
                 print folder + " done!"
                 break
-            title = ("Tuning objective: " + objectives[The.option.tunedobjective]
-                     + "\nBegin time: " + strftime("%Y-%m-%d %H:%M:%S"))
+            title = (
+            "Tuning objective: " + objectives[The.option.tunedobjective]
+            + "\nBegin time: " + strftime("%Y-%m-%d %H:%M:%S"))
             # pdb.set_trace()
             writefile(title)
             writefile("Dataset: " + expname)
             for model in [CART, RF]:  # add learners here!
-                for task in ["Naive_","Tuned_","Grid_"]:
+                for task in ["Naive_", "Tuned_", "Grid_"]:
                     random.seed(1)
                     writefile("-" * 30 + "\n")
                     timeout = time.time()
@@ -118,9 +121,11 @@ def start(obj, path="./data", isSMOTE=False, repeats=5):
                         keep(name, thislearner.untuned())
                     elif task == "Grid_":
                         for _ in xrange(repeats):
-                            temp = gridSearch(thislearner, objectives[The.option.tunedobjective])
+                            temp = gridSearch(thislearner, objectives[
+                                The.option.tunedobjective])
                             keep(name, temp)
-                    run_time = name + " Running Time: " + str(round(time.time() - timeout, 3)/repeats)
+                    run_time = name + " Running Time: " + str(
+                        round(time.time() - timeout, 3) / repeats)
                     print run_time
                     writefile(run_time)
             printResult(expname)
@@ -128,5 +133,5 @@ def start(obj, path="./data", isSMOTE=False, repeats=5):
 
 if __name__ == "__main__":
     # SMOTE()
-    for i in [2,3,5]:
+    for i in [2, 3, 5]:
         start(i)
