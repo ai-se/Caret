@@ -17,7 +17,7 @@ from sk import rdivDemo
 
 def create_file(objective):
     home_path = getenv("HOME")
-    file_name = (home_path + '/Google Drive/EXP/myresult' + strftime(
+    file_name = (home_path + '/Github/Caret/result' + strftime(
         "%Y-%m-%d %H:%M:%S") + objective)
     f = open(file_name, 'w').close()
     return file_name
@@ -222,7 +222,6 @@ def cmd(com="./data/ant"):
     def wrap(x): return "'%s'" % x if strp(x) else str(x)
 
     words = map(wrap, map(atom, sys.argv[2:]))
-    pdb.set_trace()
     return sys.argv[1] + '(' + ','.join(words) + ')'
 
 
