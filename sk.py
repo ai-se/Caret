@@ -11,7 +11,7 @@
 from __future__ import division
 import sys,random,math
 sys.dont_write_bytecode = True
-from settings import *
+# from settings import *
 """
 
 #### Standard Utils

@@ -2,7 +2,7 @@ from __future__ import division
 import random, pdb
 from run import writefile
 from sklearn.cross_validation import StratifiedKFold
-from base import *
+# from base import *
 from newabcd import sk_abcd
 
 
@@ -18,11 +18,11 @@ class deBase(object):
         self.train_Y = train_Y
         self.test_X = test_X
         self.test_Y = test_Y
-        self.np = Settings.de.np
-        self.fa = Settings.de.f
-        self.cr = Settings.de.cr
-        self.repeats = Settings.de.repeats
-        self.life = Settings.de.life
+        self.np = 10
+        self.fa = 0.75
+        self.cr = 0.3
+        self.repeats = 50
+        self.life = 5
         self.obj = tuned_objective
         self.file_name = file_name
         self.evaluation = 0

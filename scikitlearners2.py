@@ -5,7 +5,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cross_validation import StratifiedKFold
-from main import *
+# from main import *
 from newabcd import sk_abcd
 import pandas as pd
 import numpy as np
