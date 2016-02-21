@@ -151,7 +151,7 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
         writefile(file_name, title)
         writefile(file_name, "Dataset: " + data_name)
         for predictor in learner_lst:
-            for task in ["Tuned_", "Grid_"]:  # "Naive_", "Tuned_",
+            for task in ["Naive_","Tuned_", "Grid_"]:  # "Naive_", "Tuned_",
                 random.seed(1)
                 writefile(file_name, "-" * 30 + "\n")
                 begin_time = time.time()
@@ -160,7 +160,8 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
                     clf = predictor().default()
                     clf.fit(train_data_X, train_data_Y)
                     predict_result = clf.predict(test_data_X)
-                    score = sk_abcd(predict_result, test_data_Y)
+                    predict_pro = clf.predict_proba(test_data_X)
+                    score = sk_abcd(predict_result, test_data_Y, predict_pro[:,1])
                     save_score(name, score, score_lst)
                 elif task == "Grid_":
                     new_predictor = predictor()
@@ -174,7 +175,8 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
                         clf.fit(train_data_X, train_data_Y)
                         # best_params = clf.best_params_
                         predict_result = clf.predict(test_data_X)
-                        score = sk_abcd(predict_result, test_data_Y)
+                        predict_pro = clf.predict_proba(test_data_X)
+                        score = sk_abcd(predict_result, test_data_Y,predict_pro[:,1])
                         save_score(name, score, score_lst)
                 elif task == "Tuned_":
                     new_predictor = predictor()
@@ -182,7 +184,8 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
                         clf = DE_tuner(new_predictor, tuning_goal.index(goal),
                                    train_data_X, train_data_Y, file_name)
                         predict_result = clf.predict(test_data_X)
-                        score = sk_abcd(predict_result, test_data_Y)
+                        predict_pro = clf.predict_proba(test_data_X)
+                        score = sk_abcd(predict_result, test_data_Y,predict_pro[:,1])
                         save_score(name, score, score_lst)
                 run_time = name + " Running Time: " + str(
                     round(time.time() - begin_time, 3) /repeats)

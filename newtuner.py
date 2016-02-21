@@ -8,7 +8,7 @@ from newabcd import sk_abcd
 
 class deBase(object):
     def __init__(self, predictor, tuned_objective, train_X, train_Y, test_X,
-                 test_Y,file_name):
+                 test_Y, file_name):
         global The
         self.tobetuned = predictor.tunelst
         self.limit_max = predictor.tune_max
@@ -61,11 +61,10 @@ class deBase(object):
         param_dict = {}
         for key, val in zip(self.tobetuned, tunedvalue):
             param_dict[key] = val
-        param_dict["random_state"] =1
+        param_dict["random_state"] = 1
         clf = self.predictor.default(param_dict).fit(self.train_X,
                                                      self.train_Y)
         return clf
-
 
     def best(self):
         sortlst = []
@@ -80,12 +79,11 @@ class deBase(object):
         bestscore = sortlst[-1][-1][self.obj]
         return bestconf, bestscore
 
-
-    def callModel(self,clf):
+    def callModel(self, clf):
         predict_result = clf.predict(self.test_X)
-        scores = sk_abcd(predict_result,self.test_Y)
+        predict_pro = clf.predict_proba(self.test_X)
+        scores = sk_abcd(predict_result, self.test_Y, predict_pro[:, 1])
         return scores[-1]
-
 
     def treat(self, lst):
         """
@@ -96,7 +94,6 @@ class deBase(object):
         # return NotImplementedError("treat error")
         return lst
 
-
     def trim(self, n, x):
         if isinstance(self.limit_min[n], float):
             return max(self.limit_min[n], min(round(x, 2), self.limit_max[n]))
@@ -104,7 +101,6 @@ class deBase(object):
             return max(self.limit_min[n], min(int(x), self.limit_max[n]))
         else:
             raise ValueError("wrong type here in parameters")
-
 
     def gen3(self, n, f):
         seen = [n]
@@ -122,28 +118,27 @@ class deBase(object):
         c = gen1(seen)
         return a, b, c
 
-
     def update(self, index, old):
         newf = []
         a, b, c = self.gen3(index, old)
         for k in xrange(len(old)):
             if isinstance(self.limit_min[k], bool):
-                newf.append(old[k] if self.cr < random.random() else not old[k])
+                newf.append(
+                    old[k] if self.cr < random.random() else not old[k])
             elif isinstance(self.limit_min[k], list):
                 pass
             else:
-                newf.append(old[k] if self.cr < random.random() else self.trim(k, (
-                    a[k] + self.fa * (b[k] - c[k]))))
+                newf.append(
+                    old[k] if self.cr < random.random() else self.trim(k, (
+                        a[k] + self.fa * (b[k] - c[k]))))
         return self.treat(newf)
-
 
     def writeResults(self):
         for p in self.tobetuned:
             temp = 0
             # exec ("temp =" + p)
             writefile(self.file_name, p + ": " + str(temp))
-        writefile(self.file_name,"evaluation: " + str(self.evaluation))
-
+        writefile(self.file_name, "evaluation: " + str(self.evaluation))
 
     def DE(self):
         changed = False
@@ -177,10 +172,10 @@ class deBase(object):
                 self.life -= 1
             changed = False
         self.writeResults()
-        print "final bestescore %s: " +str(self.bestscore)
-        print "final bestconf %s: " +str(self.bestconf)
-        print "DONE !!!!"
-        clf =self.assign(self.bestconf)
+        # print "final bestescore %s: " + str(self.bestscore)
+        # print "final bestconf %s: " + str(self.bestconf)
+        # print "DONE !!!!"
+        clf = self.assign(self.bestconf)
         return clf
 
 
@@ -219,7 +214,7 @@ class RfDE(deBase):
         return lst
 
 
-def DE_tuner(predictor, goal_index, train_X, train_Y,file_name):
+def DE_tuner(predictor, goal_index, train_X, train_Y, file_name):
     index_train_tune = [(train, test) for train, test in
                         StratifiedKFold(train_Y, n_folds=2, random_state=1)]
     # here n_folds is hard-coded to 2
@@ -228,11 +223,10 @@ def DE_tuner(predictor, goal_index, train_X, train_Y,file_name):
     new_test_X = train_X[index_train_tune[0][1]]  # the second fold as test
     new_test_Y = train_Y[index_train_tune[0][1]]  # the second fold as test
     tuner = deBase(predictor, goal_index, new_train_X, new_train_Y, new_test_X,
-                 new_test_Y, file_name)
+                   new_test_Y, file_name)
 
     clf = tuner.DE()
     return clf
-
 
 
 if __name__ == "__main__":
