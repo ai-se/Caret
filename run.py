@@ -9,6 +9,7 @@ from os import listdir
 from os.path import join, isfile
 from time import strftime
 import time
+from mpi4py import MPI
 from newlearner import *
 from newtuner import *
 from sk import rdivDemo
@@ -56,7 +57,7 @@ def getScoring(goal):
     return scoring
 
 
-def load_data(path, num_dataset=3, class_col=23):
+def load_data(nextpath, num_dataset=3, class_col=23):
     def cov(data):
         lst = [1 if i > 0  else 0 for i in data]
         return lst
@@ -69,21 +70,22 @@ def load_data(path, num_dataset=3, class_col=23):
         train_X = df.as_matrix()  # numpy array with numeric
         return [train_X, train_Y]
 
-    folders = [f for f in listdir(path) if not isfile(join(path, f))]
-    for folder in folders[:1]:
-        nextpath = join(path, folder)
-        data = [join(nextpath, f) for f in listdir(nextpath) if
-                isfile(join(nextpath, f)) and ".DS" not in f]
-        count = 0
-        for i in range(len(data)):
-            X = []
-            try:
-                for j in xrange(num_dataset):
-                    X.append(build(data[i + j]))
-            except IndexError, e:
-                break
-            yield (folder + "V" + str(count), X)
-            count += 1
+    # folders = [f for f in listdir(path) if not isfile(join(path, f))]
+    # for folder in folders[:]:
+    #     nextpath = join(path, folder)
+    folder_name = nextpath[nextpath.rindex("/") + 1:]
+    data = [join(nextpath, f) for f in listdir(nextpath) if
+            isfile(join(nextpath, f)) and ".DS" not in f]
+    count = 0
+    for i in range(len(data)):
+        X = []
+        try:
+            for j in xrange(num_dataset):
+                X.append(build(data[i + j]))
+        except IndexError, e:
+            break
+        yield (folder_name + "V" + str(count), X)
+        count += 1
 
 
 def printResult(dataname, which_is_better, lst, file_name, goal_index):
@@ -130,8 +132,8 @@ def printResult(dataname, which_is_better, lst, file_name, goal_index):
     print("\n")
 
 
-def start(learner_lst=[CART, RF], src="./data", goal="precision", repeats=5,
-          randomly=True):
+def start(src, randomly=True, processor=10, learner_lst=[CART, RF],
+          goal="precision", repeats=5):
     tuning_goal = ["pd", "pf", "precision", "f1", "g", "auc"]
     if goal not in tuning_goal:
         raise ValueError("Tuning goal %s is not supported! only "
@@ -201,7 +203,31 @@ def start(learner_lst=[CART, RF], src="./data", goal="precision", repeats=5,
                     tuning_goal.index(goal))
 
 
+def atom(x):
+    try:
+        return int(x)
+    except ValueError:
+        try:
+            return float(x)
+        except ValueError:
+            return x
+
+
+def cmd(com="./data/ant"):
+    "Convert command line to a function call."
+    if len(sys.argv) < 2: return start("./data/ant", True)
+
+    def strp(x): return isinstance(x, basestring)
+
+    def wrap(x): return "'%s'" % x if strp(x) else str(x)
+
+    words = map(wrap, map(atom, sys.argv[2:]))
+    pdb.set_trace()
+    return sys.argv[1] + '(' + ','.join(words) + ')'
+
+
 if __name__ == "__main__":
-    for i in ["precision", "f1", "auc"]:
-        for j in [True, False]:
-            start(goal=i, randomly=j)
+    eval(cmd())
+    # for i in ["precision", "f1", "auc"]:
+    #     for j in [True, False]:
+    #         start(goal=i, randomly=j)
