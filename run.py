@@ -57,7 +57,7 @@ def getScoring(goal):
     return scoring
 
 
-def load_data(nextpath, num_dataset=3, class_col=23):
+def load_data(path, num_dataset=3, class_col=23):
     def cov(data):
         lst = [1 if i > 0  else 0 for i in data]
         return lst
@@ -70,22 +70,22 @@ def load_data(nextpath, num_dataset=3, class_col=23):
         train_X = df.as_matrix()  # numpy array with numeric
         return [train_X, train_Y]
 
-    # folders = [f for f in listdir(path) if not isfile(join(path, f))]
-    # for folder in folders[:]:
-    #     nextpath = join(path, folder)
-    folder_name = nextpath[nextpath.rindex("/") + 1:]
-    data = [join(nextpath, f) for f in listdir(nextpath) if
-            isfile(join(nextpath, f)) and ".DS" not in f]
-    count = 0
-    for i in range(len(data)):
-        X = []
-        try:
-            for j in xrange(num_dataset):
-                X.append(build(data[i + j]))
-        except IndexError, e:
-            break
-        yield (folder_name + "V" + str(count), X)
-        count += 1
+    folders = [f for f in listdir(path) if not isfile(join(path, f))]
+    for folder in folders[:]:
+        nextpath = join(path, folder)
+        # folder_name = nextpath[nextpath.rindex("/") + 1:]
+        data = [join(nextpath, f) for f in listdir(nextpath) if
+                isfile(join(nextpath, f)) and ".DS" not in f]
+        count = 0
+        for i in range(len(data)):
+            X = []
+            try:
+                for j in xrange(num_dataset):
+                    X.append(build(data[i + j]))
+            except IndexError, e:
+                break
+            yield (folder + "V" + str(count), X)
+            count += 1
 
 
 def printResult(dataname, which_is_better, lst, file_name, goal_index):
@@ -150,7 +150,9 @@ def start(src, randomly=True, processor=10, learner_lst=[CART, RF],
         train_data_Y = np.concatenate((data_lst[0][1], data_lst[1][1]), axis=0)
         test_data_X = data_lst[2][0]
         test_data_Y = data_lst[2][1]
-        title = ("Tuning objective: " + goal + "\nBegin time: " + strftime(
+        title = ("GriSearch: " + str(
+            randomly) + "\n" + "Tuning objective: " + goal + "\nBegin time: "
+                                                             "" + strftime(
             "%Y-%m-%d %H:%M:%S"))  # pdb.set_trace()
         writefile(file_name, title)
         writefile(file_name, "Dataset: " + data_name)
@@ -201,6 +203,13 @@ def start(src, randomly=True, processor=10, learner_lst=[CART, RF],
                 writefile(file_name, run_time)
         printResult(data_name, which_is_better, score_lst, file_name,
                     tuning_goal.index(goal))
+
+
+def run(goal, randomly):
+    if randomly.lower() == "true":
+        start(src="/share3/wfu/Caret/" , goal=goal, randomly=True)
+    else:
+        start(src="/share3/wfu/Caret/", goal=goal, randomly=False)
 
 
 def atom(x):
