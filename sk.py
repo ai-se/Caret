@@ -471,13 +471,13 @@ def leftRight(parts,epsilon=0.01):
 Driver for the demos:
 
 """
-def writefile(s):
+def writefile(file_name,s):
   global The
-  f = open(The.option.resultname, 'a')
+  f = open(file_name, 'a')
   f.write(s+'\n')
   f.close()
 
-def rdivDemo(data):
+def rdivDemo(file_name,data):
   def z(x):
     return int(100 * (x - lo) / (hi - lo + 0.00001))
   data = map(lambda lst:Num(lst[0],lst[1:]),
@@ -494,14 +494,14 @@ def rdivDemo(data):
   last = None
   print  ('%4s , %20s ,    %s   , %4s ' % \
                ('rank', 'name', 'med', 'iqr'))+ "\n"+ line
-  writefile(('%4s , %20s ,    %s   , %4s ' % \
+  writefile(file_name,('%4s , %20s ,    %s   , %4s ' % \
                ('rank', 'name', 'med', 'iqr'))+ "\n"+ line)
   for _,__,x in sorted(ranks):
     q1,q2,q3 = x.quartiles()
     print  ('%4s , %20s ,    %4s  ,  %4s ' % \
                  (x.rank+1, x.name, q2, q3 - q1))  + \
               xtile(x.all,lo=lo,hi=hi,width=30,show="%5.2f")
-    writefile(('%4s , %20s ,    %4s  ,  %4s ' % \
+    writefile(file_name,('%4s , %20s ,    %4s  ,  %4s ' % \
                  (x.rank+1, x.name, q2, q3 - q1))  + \
               xtile(x.all,lo=lo,hi=hi,width=30,show="%5.2f"))
     last = x.rank 
