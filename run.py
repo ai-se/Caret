@@ -17,7 +17,7 @@ from sk import rdivDemo
 
 def create_file(objective):
     home_path = getenv("HOME")
-    file_name = (home_path + '/Github/Caret/result' + strftime(
+    file_name = (home_path + '/Github/Caret/result/' + strftime(
         "%Y-%m-%d %H:%M:%S") + objective)
     f = open(file_name, 'w').close()
     return file_name
