@@ -25,9 +25,9 @@ def sk_abcd(pred_lst, actual_lst):
         label.append(i)
     return label
 
-  def get_auc(pred, actual):
-    y_predict = [1 if i == "Defective" else 0 for i in pred]
-    y_actual = [1 if i == "Defective" else 0 for i in actual]
+  def get_auc(y_predict, y_actual):
+    # y_predict = [1 if i == "Defective" else 0 for i in pred]
+    # y_actual = [1 if i == "Defective" else 0 for i in actual]
     return metrics.roc_auc_score(y_actual, y_predict)
 
   def getABCD(label):
@@ -47,7 +47,7 @@ def sk_abcd(pred_lst, actual_lst):
 
   def score(label, show=False):
     out = []
-    for i in ['Non-Defective', 'Defective']:
+    for i in [0,1]:
       pd = pf = prec = f = g = w = acc = 0
       a = A.get(i, 0)
       b = B.get(i, 0)
@@ -67,7 +67,7 @@ def sk_abcd(pred_lst, actual_lst):
           '{10:3d} {11:3d} {12:3d} {''13:10s}').format(
           "hello", "test", n(b + d), n(a), n(b), n(c),
           n(d), p(acc), p(pd), p(pf), p(prec), p(f), p(g), i)
-      out += [[p(pd), p(pf), p(prec), p(f), p(g), p(w)]]
+      out += [[p(pd), p(pf), p(prec), p(f), p(g)]]
     return out
 
   auc = int(get_auc(pred_lst,actual_lst)*100)
@@ -77,5 +77,4 @@ def sk_abcd(pred_lst, actual_lst):
   out = score(labels)
   out[0].append(auc)
   out[1].append(auc)
-  pdb.set_trace()
   return out
