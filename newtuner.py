@@ -134,10 +134,10 @@ class deBase(object):
         return self.treat(newf)
 
     def writeResults(self):
-        for p in self.tobetuned:
-            temp = 0
-            # exec ("temp =" + p)
-            writefile(self.file_name, p + ": " + str(temp))
+        # for p in self.tobetuned:
+        #     temp = 0
+        #     # exec ("temp =" + p)
+        #     writefile(self.file_name, p + ": " + str(temp))
         writefile(self.file_name, "evaluation: " + str(self.evaluation))
 
     def DE(self):
