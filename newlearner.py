@@ -28,12 +28,20 @@ class RF(object):
                  'min_samples_split': [1, 21], 'min_samples_leaf': [2, 21],
                  'max_leaf_nodes': [10, 51]}]
 
-    def grid_parameters(self):
-        return [{'n_estimators': random.sample(range(50, 151), 3),
+    def grid_parameters(self, randomly=True):
+        if randomly:
+            return [{'n_estimators': random.sample(range(50, 151), 3),
                  'max_features': random.sample(np.arange(0.01, 1.0, 0.1), 3),
-                 'min_samples_split': random.sample(range(1, 21), 2),
+                 'min_samples_split': random.sample(range(1, 21), 3),
                  'min_samples_leaf': random.sample(range(2, 21), 3),
-                 'max_leaf_nodes': random.sample(range(10, 51), 2)}]
+                 'max_leaf_nodes': random.sample(range(10, 51), 3)}]
+        else:
+            return [{'n_estimators': [50,100, 150],
+                 'max_features': [0.01, 0.33, 0.99],
+                 'min_samples_split': [1, 10,21],
+                 'min_samples_leaf': [2, 12,21],
+                 'max_leaf_nodes': [10, 30,50]}]
+
 
 
 class CART(object):
@@ -54,8 +62,14 @@ class CART(object):
         return [{'max_features': [0.01, 1.0], 'max_depth': [1, 50],
                  'min_samples_split': [2, 20], 'min_samples_leaf': [2, 21]}]
 
-    def grid_parameters(self):
-        return [{'max_features': random.sample(np.arange(0.01, 1, 0.1), 4),
+    def grid_parameters(self,randomly=True):
+        if randomly:
+            return [{'max_features': random.sample(np.arange(0.01, 1, 0.1), 3),
                  'max_depth': random.sample(range(1, 51), 3),
                  'min_samples_split': random.sample(range(2, 20), 3),
                  'min_samples_leaf': random.sample(range(2, 20), 3)}]
+        else:
+            return [{'max_features': [0.01, 0.33,0.99],
+                 'max_depth': [1, 25,50],
+                 'min_samples_split': [2, 11,20],
+                 'min_samples_leaf': [2, 11,20]}]

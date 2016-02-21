@@ -45,7 +45,7 @@ def getScoring(goal):
         scoring = 'recall'
     elif goal.lower() == "pf":
         raise ValueError("this goal is not implemented by scikit-learn!")
-    elif goal.lower() == "prec":
+    elif goal.lower() == "precision":
         scoring = 'precision'
     elif goal.lower() == "f1":
         scoring = 'f1'
@@ -120,8 +120,9 @@ def printResult(dataname, which_is_better, lst, file_name, goal_index):
             count_better(lst[j])
         rdivDemo(file_name, myrdiv(lst[j]))
     out_better = (
-    "\n In terms of " + str(goal_index) + " : the times of better "
-                                          "tuners are" + str(which_is_better))
+        "\n In terms of " + str(goal_index) + " : the times of better "
+                                              "tuners are" + str(
+            which_is_better))
     print(out_better)
     writefile(file_name, out_better)
     writefile(file_name,
@@ -129,8 +130,9 @@ def printResult(dataname, which_is_better, lst, file_name, goal_index):
     print("\n")
 
 
-def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
-    tuning_goal = ["recall", "pf", "precision", "f1", "g", "auc"]
+def start(learner_lst=[CART, RF], src="./data", goal="precision", repeats=5,
+          randomly=True):
+    tuning_goal = ["pd", "pf", "precision", "f1", "g", "auc"]
     if goal not in tuning_goal:
         raise ValueError("Tuning goal %s is not supported! only "
                          "these  %s are supported" % (
@@ -151,7 +153,7 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
         writefile(file_name, title)
         writefile(file_name, "Dataset: " + data_name)
         for predictor in learner_lst:
-            for task in ["Naive_","Tuned_", "Grid_"]:  # "Naive_", "Tuned_",
+            for task in ["Naive_", "Tuned_", "Grid_"]:  # "Naive_", "Tuned_",
                 random.seed(1)
                 writefile(file_name, "-" * 30 + "\n")
                 begin_time = time.time()
@@ -161,7 +163,8 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
                     clf.fit(train_data_X, train_data_Y)
                     predict_result = clf.predict(test_data_X)
                     predict_pro = clf.predict_proba(test_data_X)
-                    score = sk_abcd(predict_result, test_data_Y, predict_pro[:,1])
+                    score = sk_abcd(predict_result, test_data_Y,
+                                    predict_pro[:, 1])
                     save_score(name, score, score_lst)
                 elif task == "Grid_":
                     new_predictor = predictor()
@@ -169,26 +172,29 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
                     for _ in xrange(repeats):
                         clf = new_predictor.default()
                         clf = grid_search.GridSearchCV(clf,
-                              new_predictor.grid_parameters(),
-                              cv=2, scoring=score_fun,
-                              refit=True)
+                                                       new_predictor.grid_parameters(
+                                                           randomly), cv=2,
+                                                       scoring=score_fun,
+                                                       refit=True)
                         clf.fit(train_data_X, train_data_Y)
                         # best_params = clf.best_params_
                         predict_result = clf.predict(test_data_X)
                         predict_pro = clf.predict_proba(test_data_X)
-                        score = sk_abcd(predict_result, test_data_Y,predict_pro[:,1])
+                        score = sk_abcd(predict_result, test_data_Y,
+                                        predict_pro[:, 1])
                         save_score(name, score, score_lst)
                 elif task == "Tuned_":
                     new_predictor = predictor()
                     for _ in xrange(repeats):
                         clf = DE_tuner(new_predictor, tuning_goal.index(goal),
-                                   train_data_X, train_data_Y, file_name)
+                                       train_data_X, train_data_Y, file_name)
                         predict_result = clf.predict(test_data_X)
                         predict_pro = clf.predict_proba(test_data_X)
-                        score = sk_abcd(predict_result, test_data_Y,predict_pro[:,1])
+                        score = sk_abcd(predict_result, test_data_Y,
+                                        predict_pro[:, 1])
                         save_score(name, score, score_lst)
                 run_time = name + " Running Time: " + str(
-                    round(time.time() - begin_time, 3) /repeats)
+                    round(time.time() - begin_time, 3) / repeats)
                 print(run_time)
                 writefile(file_name, run_time)
         printResult(data_name, which_is_better, score_lst, file_name,
@@ -196,4 +202,6 @@ def start(learner_lst=[CART, RF], src="./data", goal="f1", repeats=5):
 
 
 if __name__ == "__main__":
-    start()
+    for i in ["precision", "f1", "auc"]:
+        for j in [True, False]:
+            start(goal=i, randomly=j)
