@@ -83,4 +83,4 @@ class CART(object):
             return [{'max_features': np.arange(0.01, 1, 0.1),
                  'max_depth': np.arange(1,51,5),
                  'min_samples_split': np.arange(1,21,2),
-                 'min_samples_leaf': np.arange(2,21,2)]
+                 'min_samples_leaf': np.arange(2,21,2)}]
