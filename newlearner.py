@@ -36,18 +36,18 @@ class RF(object):
                  'min_samples_leaf': random.sample(range(2, 21), 3),
                  'max_leaf_nodes': random.sample(range(10, 51), 3)}]
         else:
-            # return [{'n_estimators': [50,100, 150],
-            #      'max_features': [0.01, 0.33, 0.99],
-            #      'min_samples_split': [1, 10,21],
-            #      'min_samples_leaf': [2, 12,21],
-            #      'max_leaf_nodes': [10, 30,50]}]
+            return [{'n_estimators': [50,100, 150],
+                 'max_features': [0.01, 0.33, 0.99],
+                 'min_samples_split': [1, 10,21],
+                 'min_samples_leaf': [2, 12,21],
+                 'max_leaf_nodes': [10, 30,50]}]
 
-            # exhuastive grid search
-            return [{'n_estimators': np.arange(50,150,10),
-                 'max_features': np.arange(0.01, 1.01,0.1),
-                 'min_samples_split': np.arange(1,21,2),
-                 'min_samples_leaf': np.arange(2,21,2),
-                 'max_leaf_nodes': np.arange(10, 50,4)}]
+            # # exhuastive grid search
+            # return [{'n_estimators': np.arange(50,150,10),
+            #      'max_features': np.arange(0.01, 1.01,0.1),
+            #      'min_samples_split': np.arange(1,21,2),
+            #      'min_samples_leaf': np.arange(2,21,2),
+            #      'max_leaf_nodes': np.arange(10, 50,4)}]
 
 
 
@@ -76,11 +76,11 @@ class CART(object):
                  'min_samples_split': random.sample(range(1, 20), 3),
                  'min_samples_leaf': random.sample(range(2, 20), 3)}]
         else:
-            # return [{'max_features': [0.01, 0.33,0.99],
-            #      'max_depth': [1, 25,50],
-            #      'min_samples_split': [1, 11,20],
-            #      'min_samples_leaf': [2, 11,20]}]
-            return [{'max_features': np.arange(0.01, 1, 0.1),
-                 'max_depth': np.arange(1,51,5),
-                 'min_samples_split': np.arange(1,21,2),
-                 'min_samples_leaf': np.arange(2,21,2)}]
+            return [{'max_features': [0.01, 0.33,0.99],
+                 'max_depth': [1, 25,50],
+                 'min_samples_split': [1, 11,20],
+                 'min_samples_leaf': [2, 11,20]}]
+            # return [{'max_features': np.arange(0.01, 1, 0.1),
+            #      'max_depth': np.arange(1,51,5),
+            #      'min_samples_split': np.arange(1,21,2),
+            #      'min_samples_leaf': np.arange(2,21,2)}]
