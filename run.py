@@ -180,7 +180,7 @@ def start(src, randomly=True, processor=10, learner_lst=[CART, RF],
                                                            randomly), cv=2,
                                                        scoring=score_fun,
                                                        refit=True)
-                        clf.fit(train_data_X, train_data_Y)
+                        # clf.fit(train_data_X, train_data_Y)
                         # best_params = clf.best_params_
                         predict_result = clf.predict(test_data_X)
                         predict_pro = clf.predict_proba(test_data_X)
