@@ -224,7 +224,7 @@ def atom(x):
 
 def cmd(com="./data/ant"):
     "Convert command line to a function call."
-    pdb.set_trace()
+    # pdb.set_trace()
     if len(sys.argv) < 2: return start("./data/ant", True)
 
     def strp(x): return isinstance(x, basestring)
