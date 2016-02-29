@@ -1,6 +1,7 @@
 library(caret)
 library("pROC")
 library(C50)
+library("ada")
 difference <- function(x.1,x.2,...){
   x.1p <- do.call("paste", x.1)
   x.2p <- do.call("paste", x.2)
@@ -23,11 +24,11 @@ SB<-function(datasets){
   
   ########## Tuning Process #################
   fitControl <- trainControl(method = "boot",classProbs = TRUE, summaryFunction = twoClassSummary)
-  Grid <-  expand.grid(  .trials = c(1, 10, 20, 30, 40),
-                         .winnow = c(FALSE, TRUE),
-                         .model = c("tree","rules"))
+  Grid <-  expand.grid(.iter = c(50,100,150,200,250),
+                       .maxdepth = c(1,2,3,4,5),
+                       .nu = 1)
   Fit2 <- train(trainX, trainY,
-                   method = "C5.0",
+                   method = "ada",
                    trControl = fitControl,
                    verbose = FALSE,
                    tuneGrid = Grid,
@@ -44,7 +45,7 @@ SB<-function(datasets){
     colnames(test_data)<-names(train_data)
     
     ########## TUNED MODEl #################
-    tuned_model <- C5.0(trainX, trainY, trails = Fit2$bestTune$trials, winnow = Fit2$bestTune$winnow, model = Fit2$bestTune$model)
+    tuned_model <- ada(trainX, trainY, iter=Fit2$bestTune$iter, maxdepth = Fit2$bestTune$maxdepth)
     tuned_predicted <-predict(tuned_model, newdata = test_data, type = "prob")
     tuned_roc <-roc(predictor = data.frame(tuned_predicted)$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
     tuned_auc <-auc(tuned_roc)
