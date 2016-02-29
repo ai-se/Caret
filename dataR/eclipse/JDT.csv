@@ -1,4 +1,4 @@
- numberOfVersionsUntil: , numberOfFixesUntil: , numberOfRefactoringsUntil: , numberOfAuthorsUntil: , linesAddedUntil: , maxLinesAddedUntil: , avgLinesAddedUntil: , linesRemovedUntil: , maxLinesRemovedUntil: , avgLinesRemovedUntil: , codeChurnUntil: , maxCodeChurnUntil: , avgCodeChurnUntil: , ageWithRespectTo: , weightedAgeWithRespectTo: , bugs , 
+ numberOfVersionsUntil: , numberOfFixesUntil: , numberOfRefactoringsUntil: , numberOfAuthorsUntil: , linesAddedUntil: , maxLinesAddedUntil: , avgLinesAddedUntil: , linesRemovedUntil: , maxLinesRemovedUntil: , avgLinesRemovedUntil: , codeChurnUntil: , maxCodeChurnUntil: , avgCodeChurnUntil: , ageWithRespectTo: , weightedAgeWithRespectTo: ,bug, 
 65,4,0,8,608,158,9.35385,566,158,8.70769,42,15,0.646154,350.571,63.0609,0, 
 2,0,0,2,10,10,5,0,0,0,10,10,5,117.714,0,0, 
 120,10,0,12,1361,99,11.3417,768,77,6.4,593,66,4.94167,238.429,104.204,1, 
