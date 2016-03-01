@@ -87,8 +87,11 @@ platfrom3 <- read.csv("./eclipse/platform3.0.csv", sep = ",")
 debug34 <- read.csv("./eclipse/Debug3.4.csv", sep = ",")
 swt34 <- read.csv("./eclipse/SWT3.4.csv", sep = ",")
 jdt <- read.csv("./eclipse/JDT.csv", sep = ",")
+jdt$X <-NULL
 mylyn <- read.csv("./eclipse/mylyn.csv", sep = ",")
+mylyn$X <-NULL
 pde <- read.csv("./eclipse/PDE.csv", sep = ",")
+pde$X <-NULL
 
 mydata <- list(jm1, pc5, prop1, prop2, prop3, prop4, prop5, camel, xalan25, xalan26,
                platform2, platform21, platfrom3, debug34, swt34, jdt, mylyn, pde)
