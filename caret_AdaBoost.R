@@ -45,15 +45,21 @@ SB<-function(datasets){
     colnames(test_data)<-names(train_data)
     
     ########## TUNED MODEl #################
-    tuned_model <- ada(trainX, trainY, iter=Fit2$bestTune$iter, maxdepth = Fit2$bestTune$maxdepth)
+    control <- rpart.control(maxdepth = Fit2$bestTune$maxdepth,cp=-1,minsplit=0,xval=0)
+    tuned_model <- ada(trainX, trainY, iter=Fit2$bestTune$iter, control)
     tuned_predicted <-predict(tuned_model, newdata = test_data, type = "prob")
-    tuned_roc <-roc(predictor = data.frame(tuned_predicted)$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
+    frame_tuned_predicted <- data.frame(tuned_predicted)
+    names(frame_tuned_predicted)<-c('N','Y')
+    tuned_roc <-roc(predictor = frame_tuned_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
     tuned_auc <-auc(tuned_roc)
   
     ########## Default MODEl #################
-    Default_model<- C5.0(trainX, trainY,trails=1, rules=TRUE)
+    control <- rpart.control(maxdepth = 1, cp=-1,minsplit=0, xval=0)
+    Default_model<- ada(trainX, trainY, iter = 50, control)
     Default_predicted <- predict(Default_model, test_data, type = "prob")
-    Default_roc <-roc(predictor = data.frame(Default_predicted)$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
+    frame_default_predicted <- data.frame(Default_predicted)
+    names(frame_default_predicted)<-c('N','Y')
+    Default_roc <-roc(predictor = frame_default_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
     Default_auc <-auc(Default_roc)
     improve[i]<- (tuned_auc - Default_auc)
   }
@@ -97,6 +103,7 @@ mydata <- list(jm1, pc5, prop1, prop2, prop3, prop4, prop5, camel, xalan25, xala
 ##### main ####
 results_data <-c()
 for(i in 1:length(mydata)){
+  print(i)
   results_data[i] <- SB(mydata[[i]])
 }
 
