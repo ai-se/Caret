@@ -42,18 +42,18 @@ SB<-function(datasets){
     colnames(test_data)<-names(train_data)
     
     ########## TUNED MODEl #################
-    control1 <- rpart.control(cp = Fit2$bestTune$cp)
-    tuned_model <- rpart(train_data$bug ~ ., data = train_data, control=control1)
-    tuned_predicted <-predict(tuned_model, newdata = test_data, type = "prob")
-    frame_tuned_predicted <- data.frame(tuned_predicted)
-    names(frame_tuned_predicted)<-c('N','Y')
-    tuned_roc <-roc(predictor = frame_tuned_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
-    tuned_auc <-auc(tuned_roc)
+#     control1 <- rpart.control(cp = Fit2$bestTune$cp)
+#     tuned_model <- rpart(train_data$bug ~ ., data = train_data, control=control1)
+#     tuned_predicted <-predict(tuned_model, newdata = test_data, type = "prob")
+#     frame_tuned_predicted <- data.frame(tuned_predicted)
+#     names(frame_tuned_predicted)<-c('N','Y')
+#     tuned_roc <-roc(predictor = frame_tuned_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
+#     tuned_auc <-auc(tuned_roc)
   
     ########## Default MODEl #################
     control2 <- rpart.control(cp=0.01)
     Default_model<- rpart(train_data$bug ~ ., data = train_data, control=control2)
-    Default_predicted <- predict(Default_model, test_data, type = "prob")
+    Default_predicted <- predict(Default_model, test_data)
     frame_default_predicted <- data.frame(Default_predicted)
     names(frame_default_predicted)<-c('N','Y')
     Default_roc <-roc(predictor = frame_default_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
