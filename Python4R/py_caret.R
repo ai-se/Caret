@@ -36,23 +36,14 @@ SB<-function(datasets,nums){
   
   
   ########## repeats 100 times #################
-  improve <-c()
-  for( i in 1:1){
+  keep <-c()
+  for( i in 1:10){
     train_data<-randomSample(datasets,nrow(datasets))
     trainX <-train_data[,1:length(train_data)-1]
     trainY <-train_data$bug
     test_data<-difference(datasets, train_data)
     colnames(test_data)<-names(train_data)
-    
-    ########## TUNED MODEl #################
-    #     control1 <- rpart.control(cp = Fit2$bestTune$cp)
-    #     tuned_model <- rpart(train_data$bug ~ ., data = train_data, control=control1)
-    #     tuned_predicted <-predict(tuned_model, newdata = test_data, type = "prob")
-    #     frame_tuned_predicted <- data.frame(tuned_predicted)
-    #     names(frame_tuned_predicted)<-c('N','Y')
-    #     tuned_roc <-roc(predictor = frame_tuned_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
-    #     tuned_auc <-auc(tuned_roc)
-    
+
     ########## Default MODEl #################
     control2 <- rpart.control(cp=nums)
     Default_model<- rpart(train_data$bug ~ ., data = train_data, control=control2)
@@ -61,11 +52,10 @@ SB<-function(datasets,nums){
     names(frame_default_predicted)<-c('N','Y')
     Default_roc <-roc(predictor = frame_default_predicted$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
     Default_auc <-auc(Default_roc)
-    return (Default_auc)
-#     improve[i]<- (tuned_auc - Default_auc)
+    keep[i] <- Default_auc
   }
-  
-#   return (median(improve))  ### return median values
+#   cat(keep)
+   return (median(keep))  ### return median values
   
 }
 
