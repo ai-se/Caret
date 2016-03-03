@@ -68,7 +68,7 @@ myArgs <- commandArgs(trailingOnly = TRUE)
 data_src = myArgs[1]
 param = as.numeric(myArgs[2])
 results_data <-c()
-
+data_src <-"./NASA/JM1.csv"
 data_set <- read.csv(data_src, sep= ",")
 results_data[1] <- SB(data_set, param)
 cat(results_data)
