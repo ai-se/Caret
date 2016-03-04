@@ -1,29 +1,26 @@
 from __future__ import division
 import random, pdb
-from run import writefile
+from caret_run import writefile
 from sklearn.cross_validation import StratifiedKFold
 # from base import *
 from newabcd import sk_abcd
+import numpy as np
 
 
 class deBase(object):
-    def __init__(self, predictor, tuned_objective, train_X, train_Y, test_X,
-                 test_Y, file_name):
+    def __init__(self, predictor, data_lst, file_name, tuned_objective=0):
         global The
         self.tobetuned = predictor.tunelst
         self.limit_max = predictor.tune_max
         self.limit_min = predictor.tune_min
+        self.data_src = data_lst
         self.predictor = predictor
-        self.train_X = train_X
-        self.train_Y = train_Y
-        self.test_X = test_X
-        self.test_Y = test_Y
         self.np = 10
         self.fa = 0.75
         self.cr = 0.3
         self.repeats = 50
         self.life = 5
-        self.obj = tuned_objective
+        self.obj = tuned_objective  # assume 5 is auc
         self.file_name = file_name
         self.evaluation = 0
         self.scores = {}
@@ -35,13 +32,15 @@ class deBase(object):
         candidates = []
         for n, item in enumerate(self.limit_min):
             if isinstance(item, float):
-                candidates.append(
-                    round(random.uniform(self.limit_min[n], self.limit_max[n]),
-                          2))
+                candidates.append(round(
+                    np.random.uniform(self.limit_min[n], self.limit_max[n], 1),
+                    5))
             elif isinstance(item, bool):
                 candidates.append(random.random() <= 0.5)
-            elif isinstance(item, list):
-                pass
+            elif isinstance(item, str):
+                candidates.append(
+                    self.limit_min[0] if random.random() <= 0.5 else
+                    self.limit_max[0])
             elif isinstance(item, int):
                 candidates.append(
                     int(random.uniform(self.limit_min[n], self.limit_max[n])))
@@ -52,10 +51,9 @@ class deBase(object):
 
     def evaluate(self):
         for n, arglst in enumerate(self.frontier):
-            clf = self.assign(arglst)
-            self.scores[n] = self.callModel(clf)
-            # main return [[pd,pf,prec,f,g],[pd,pf,prec,f,g]], which are
-            # N-defective,Y-defecitve
+            # clf = self.assign(arglst)
+            self.scores[n] = self.predictor.call_model(1, self.data_src,
+                                                       arglst)
 
     def assign(self, tunedvalue):
         param_dict = {}
@@ -67,23 +65,15 @@ class deBase(object):
         return clf
 
     def best(self):
-        sortlst = []
-        if self.obj == 1:  # this is for pf
-            sortlst = sorted(self.scores.items(), key=lambda x: x[1][self.obj],
-                             reverse=True)  # alist of turple
-        else:
-            sortlst = sorted(self.scores.items(),
-                             key=lambda x: x[1][self.obj])  # alist of turple
+        sortlst = sorted(self.scores.items(), key=lambda x: x[1])
         bestconf = self.frontier[
             sortlst[-1][0]]  # [(0, [100, 73, 9, 42]), (1, [75, 41, 12, 66])]
-        bestscore = sortlst[-1][-1][self.obj]
+        bestscore = sortlst[-1][1]
         return bestconf, bestscore
 
-    def callModel(self, clf):
-        predict_result = clf.predict(self.test_X)
-        predict_pro = clf.predict_proba(self.test_X)
-        scores = sk_abcd(predict_result, self.test_Y, predict_pro[:, 1])
-        return scores[-1]
+    def callModel(self, arglst):
+        scores = self.predictor.call_model(1, self.data_src, arglst)
+        return scores
 
     def treat(self, lst):
         """
@@ -125,8 +115,11 @@ class deBase(object):
             if isinstance(self.limit_min[k], bool):
                 newf.append(
                     old[k] if self.cr < random.random() else not old[k])
-            elif isinstance(self.limit_min[k], list):
-                pass
+            elif isinstance(self.limit_min[k], str):
+                newf.append(
+                    old[k] if self.cr < random.random() else random.choice(
+                        self.limit_max[k],
+                        self.limit_min[k]))  # random select one
             else:
                 newf.append(
                     old[k] if self.cr < random.random() else self.trim(k, (
@@ -138,7 +131,8 @@ class deBase(object):
         #     temp = 0
         #     # exec ("temp =" + p)
         #     writefile(self.file_name, p + ": " + str(temp))
-        writefile(self.file_name, "evaluation: " + str(self.evaluation))
+        writefile(self.file_name, "evaluation: " + str(
+            self.evaluation) + "\n bestconf: " + str(self.bestconf))
 
     def DE(self):
         changed = False
@@ -152,12 +146,12 @@ class deBase(object):
             nextgeneration = []
             for index, f in enumerate(self.frontier):
                 new = self.update(index, f)
-                clf = self.assign(new)
-                newscore = self.callModel(clf)
+                # clf = self.assign(new)
+                newscore = self.callModel(new)
                 self.evaluation += 1
-                if isBetter(newscore[self.obj], self.scores[index][self.obj]):
+                if isBetter(newscore, self.scores[index]):
                     nextgeneration.append(new)
-                    self.scores[index] = newscore[:]
+                    self.scores[index] = newscore
                 else:
                     nextgeneration.append(f)
             self.frontier = nextgeneration[:]
@@ -172,11 +166,11 @@ class deBase(object):
                 self.life -= 1
             changed = False
         self.writeResults()
-        # print "final bestescore %s: " + str(self.bestscore)
-        # print "final bestconf %s: " + str(self.bestconf)
-        # print "DONE !!!!"
-        clf = self.assign(self.bestconf)
-        return clf
+        print "final bestescore %s: " + str(self.bestscore)
+        print "final bestconf %s: " + str(self.bestconf)
+        print "DONE !!!!"
+        # clf = self.assign(self.bestconf)
+        return self.bestconf
 
 
 class WhereDE(deBase):
@@ -214,16 +208,8 @@ class RfDE(deBase):
         return lst
 
 
-def DE_tuner(predictor, goal_index, train_X, train_Y, file_name):
-    index_train_tune = [(train, test) for train, test in
-                        StratifiedKFold(train_Y, n_folds=2, random_state=1)]
-    # here n_folds is hard-coded to 2
-    new_train_X = train_X[index_train_tune[0][0]]  # the first fold as train
-    new_train_Y = train_Y[index_train_tune[0][0]]  # the first fold as train
-    new_test_X = train_X[index_train_tune[0][1]]  # the second fold as test
-    new_test_Y = train_Y[index_train_tune[0][1]]  # the second fold as test
-    tuner = deBase(predictor, goal_index, new_train_X, new_train_Y, new_test_X,
-                   new_test_Y, file_name)
+def DE_tuner(predictor, data_lst, file_name):
+    tuner = deBase(predictor, data_lst, file_name)
 
     clf = tuner.DE()
     return clf
