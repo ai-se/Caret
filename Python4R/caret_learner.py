@@ -31,7 +31,7 @@ class Learner(object):
 
 
 class CART(Learner):
-    def __init__(self, r_src="cart.R"):
+    def __init__(self, r_src="caret_cart.R"):
         self.tunelst = ["cp"]
         self.tune_min = [0.0001]
         self.tune_max = [0.5]

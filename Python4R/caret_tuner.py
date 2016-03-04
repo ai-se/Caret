@@ -137,7 +137,6 @@ class deBase(object):
 
     def DE(self):
         changed = False
-
         def isBetter(new, old):
             return new < old if self.obj == 1 else new > old
 
