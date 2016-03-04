@@ -25,6 +25,7 @@ class Learner(object):
         cmd = [command, path2script] + my_args
         # pdb.set_trace()
         # check_output will run the command and store to result
+        #### manually check those libraries in R!!!!
         x = subprocess.check_output(cmd, universal_newlines=True)
         x = map(float, x.split()) # if not tuning, then return 10 repeats values
         return x
