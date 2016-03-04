@@ -23,7 +23,7 @@ class Learner(object):
         # Build subprocess command
         # pdb.set_trace()
         cmd = [command, path2script] + my_args
-
+        # pdb.set_trace()
         # check_output will run the command and store to result
         x = subprocess.check_output(cmd, universal_newlines=True)
 
@@ -47,7 +47,7 @@ class CART(Learner):
 
 
 class C50(Learner):
-    def __init__(self, r_src):
+    def __init__(self, r_src="caret_C5.R"):
         self.tunelst = ["trials", "winnow", "model"]
         self.tune_min = [1, False, "tree"]
         self.tune_max = [50, True, "rules"]

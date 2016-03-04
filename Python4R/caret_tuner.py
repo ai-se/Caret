@@ -30,6 +30,7 @@ class deBase(object):
 
     def generate(self):
         candidates = []
+        # pdb.set_trace()
         for n, item in enumerate(self.limit_min):
             if isinstance(item, float):
                 candidates.append(round(
@@ -39,8 +40,8 @@ class deBase(object):
                 candidates.append(random.random() <= 0.5)
             elif isinstance(item, str):
                 candidates.append(
-                    self.limit_min[0] if random.random() <= 0.5 else
-                    self.limit_max[0])
+                    self.limit_min[n] if random.random() <= 0.5 else
+                    self.limit_max[n])
             elif isinstance(item, int):
                 candidates.append(
                     int(random.uniform(self.limit_min[n], self.limit_max[n])))
@@ -118,8 +119,8 @@ class deBase(object):
             elif isinstance(self.limit_min[k], str):
                 newf.append(
                     old[k] if self.cr < random.random() else random.choice(
-                        self.limit_max[k],
-                        self.limit_min[k]))  # random select one
+                        [self.limit_max[k],
+                        self.limit_min[k]]))  # random select one
             else:
                 newf.append(
                     old[k] if self.cr < random.random() else self.trim(k, (
