@@ -2,9 +2,11 @@
 #######
 
 suppressMessages(library(caret))
+suppressWarnings(suppressMessages(library(caret)))
 suppressMessages(library("pROC"))
 suppressMessages(library(C50))
 suppressMessages(library("ada"))
+suppressWarnings(library("ggplot2"))
 difference <- function(x.1,x.2,...){
   x.1p <- do.call("paste", x.1)
   x.2p <- do.call("paste", x.2)
@@ -53,7 +55,7 @@ tune <- function(datasets,nums){
   train_data<-randomSample(datasets,nrow(datasets))
   ##### train and tune #####
   keep <-c()
-  for( i in 1:5){
+  for( i in 1:10){
     new_train_data <- randomSample(train_data, nrow(datasets)) 
     new_tune_data <- difference(train_data, new_train_data)
     colnames(new_tune_data) <- names(new_train_data)
@@ -81,9 +83,9 @@ tuning = myArgs[1] # tunig flag: 0=naive, 1=tuning
 data_src = myArgs[2] # data set_src
 param = as.numeric(myArgs[3]) # parameters
 results_data <-c()
-#  data_src <-"./apache/camel-1.2.csv"
-#  tuning <- 0
-#  param  <- 0.0001
+ # data_src <-"./apache/camel-1.2.csv"
+ # tuning <- 0
+ # param  <- 0.0001
 if (tuning == 0){
   data_set <- read.csv(data_src, sep= ",")
   for (i in 1:10){

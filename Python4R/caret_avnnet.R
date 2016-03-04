@@ -51,7 +51,7 @@ tune <- function(datasets, param_size, param_decay, param_bag){
   train_data<-randomSample(datasets,nrow(datasets))
   ##### train and tune #####
   keep <-c()
-  for( i in 1:5){
+  for( i in 1:10){
     new_train_data <- randomSample(train_data, nrow(datasets))
     new_tune_data <- difference(train_data, new_train_data)
     colnames(new_tune_data) <- names(new_train_data)
