@@ -83,7 +83,7 @@ param = as.numeric(myArgs[3]) # parameters
 results_data <-c()
 #  data_src <-"./apache/camel-1.2.csv"
 #  tuning <- 0
-#  param  <- 0.01
+#  param  <- 0.0001
 if (tuning == 0){
   data_set <- read.csv(data_src, sep= ",")
   for (i in 1:10){
