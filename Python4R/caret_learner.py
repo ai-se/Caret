@@ -26,7 +26,6 @@ class Learner(object):
         # pdb.set_trace()
         # check_output will run the command and store to result
         x = subprocess.check_output(cmd, universal_newlines=True)
-
         x = map(float, x.split()) # if not tuning, then return 10 repeats values
         return x
 
@@ -59,9 +58,9 @@ class C50(Learner):
 
 
 class avnnet(Learner):
-    def __init__(self, r_src):
+    def __init__(self, r_src="caret_avnnet.R"):
         self.tunelst = ["size", "decay", "bag"]
-        self.tune_min = [1, 0, True]
+        self.tune_min = [1, 0.0, True]
         self.tune_max = [9, 0.1, False]
         self.default = [1, 0.1, False]
         super(avnnet, self).__init__(r_src)
