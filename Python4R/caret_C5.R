@@ -94,12 +94,14 @@ results_data <-c()
 # param_rules = TRUE
 if (tuning == 0){
   data_set <- read.csv(data_src, sep= ",")
+  data_set$X <-NULL  # for JDE, mylyn, and PDE data
   for (i in 1:10){
     results_data[i] <- naive(data_set, param_trails, param_winnow, param_rules)
   }
 
 }else{
   data_set <- read.csv(data_src, sep= ",")
+  data_set$X <-NULL  # for JDE, mylyn, and PDE data
   results_data[1] <- tune(data_set, param_trails, param_winnow, param_rules)
 }
 cat(results_data)

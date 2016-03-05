@@ -88,12 +88,14 @@ results_data <-c()
  # param  <- 0.0001
 if (tuning == 0){
   data_set <- read.csv(data_src, sep= ",")
+  data_set$X <-NULL  # for JDE, mylyn, and PDE data
   for (i in 1:10){
     results_data[i] <- naive(data_set, param)
   }
   
 }else{
   data_set <- read.csv(data_src, sep= ",")
+  data_set$X <-NULL  # for JDE, mylyn, and PDE data
   results_data[1] <- tune(data_set, param)
 }
 

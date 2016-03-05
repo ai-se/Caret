@@ -60,7 +60,6 @@ tune <- function(datasets, param_size, param_decay, param_bag){
     #     control2 <- rpart.control(cp=nums)
     #     tune_model<- rpart(new_train_data$bug ~ ., data = new_train_data, control=control2)
     #     tune_predicted <- predict(tune_model, new_tune_data)
-
     tune_model<- avNNet(new_train_data$bug ~ ., data = new_train_data, decay = param_decay, bag=param_decay, size=param_size,trace = FALSE, maxit=10)
     tune_predicted <- predict(tune_model, new_tune_data, type = "prob")
     frame_tune_predicted <- data.frame(tune_predicted)
@@ -85,19 +84,22 @@ param_decay = as.numeric(myArgs[4])
 param_bag = ifelse(myArgs[5] %in% c("True"), TRUE, FALSE)
 
 results_data <-c()
-#  data_src <-"./apache/camel-1.2.csv"
+#  data_src <-"./eclipse/Debug3.4.csv"
 #  tuning <- 1
-# param_size = 1
-# param_decay = 0.1
+# param_size = 2
+# param_decay = 0.06581
 # param_bag = FALSE
+
 if (tuning == 0){
   data_set <- read.csv(data_src, sep= ",")
+  data_set$X <-NULL  # for JDE, mylyn, and PDE data
   for (i in 1:10){
     results_data[i] <- naive(data_set, param_size, param_decay, param_bag)
   }
 
 }else{
   data_set <- read.csv(data_src, sep= ",")
+  data_set$X <-NULL # for JDE, mylyn, and PDE data
   results_data[1] <- tune(data_set, param_size, param_decay, param_bag)
 }
 cat(results_data)
