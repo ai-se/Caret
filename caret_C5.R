@@ -22,7 +22,7 @@ SB<-function(datasets){
   colnames(test_data)<-names(train_data)
   
   ########## Tuning Process #################
-  fitControl <- trainControl(method = "boot",classProbs = TRUE, summaryFunction = twoClassSummary)
+  fitControl <- trainControl(method = "boot",number = 10,classProbs = TRUE, summaryFunction = twoClassSummary)
   Grid <-  expand.grid(  .trials = c(1, 10, 20, 30, 40),
                          .winnow = c(FALSE, TRUE),
                          .model = c("tree","rules"))
@@ -36,12 +36,12 @@ SB<-function(datasets){
   
   ########## repeats 100 times #################
   improve <-c()
-  for( i in 1:10){
-    train_data<-randomSample(datasets,nrow(datasets))
-    trainX <-train_data[,1:length(train_data)-1]
-    trainY <-train_data$bug
-    test_data<-difference(datasets, train_data)
-    colnames(test_data)<-names(train_data)
+  for( i in 1:1){
+#     train_data<-randomSample(datasets,nrow(datasets))
+#     trainX <-train_data[,1:length(train_data)-1]
+#     trainY <-train_data$bug
+#     test_data<-difference(datasets, train_data)
+#     colnames(test_data)<-names(train_data)
     
     ########## TUNED MODEl #################
     tuned_model <- C5.0(trainX, trainY, trails = Fit2$bestTune$trials, winnow = Fit2$bestTune$winnow, model = Fit2$bestTune$model)
@@ -54,10 +54,10 @@ SB<-function(datasets){
     Default_predicted <- predict(Default_model, test_data, type = "prob")
     Default_roc <-roc(predictor = data.frame(Default_predicted)$Y, response = test_data$bug, levels = rev(levels(test_data$bug)))
     Default_auc <-auc(Default_roc)
-    improve[i]<- (tuned_auc - Default_auc)
+    improve<- c(tuned = tuned_auc, default = Default_auc, improvement = tuned_auc-Default_auc )
   }
   
-  return (median(improve))  ### return median values
+  return (improve)  ### return median values
   
 }
 
@@ -89,14 +89,30 @@ pde <- read.csv("./eclipse/PDE.csv", sep = ",")
 mydata <- list(jm1, pc5, prop1, prop2, prop3, prop4, prop5, camel, xalan25, xalan26,
                platform2, platform21, platfrom3, debug34, swt34, jdt, mylyn, pde)
 
+name <- c("jm1", "pc5", "prop1", "prop2", "prop3", "prop4", "prop5", "camel", "xalan25", "xalan26", "platform2", "platform21", "platfrom3", "debug34", "swt34", "jdt", "mylyn", "pde")
 
 
 ######grid #######
 
 ##### main ####
-results_data <-c()
+results_data <-data.frame()
+results_all_iter <- NULL
 for(i in 1:length(mydata)){
-  results_data[i] <- SB(mydata[[i]])
+  print(name[i])
+  repeat_result <-c()
+  for (j in 1:10){
+    print(Sys.time())
+    repeat_result <- rbind(repeat_result,SB(mydata[[i]]) )
+  }
+  tuned_final <- median(repeat_result[,1])
+  default_final <- median(repeat_result[,2])
+  if (is.null(results_all_iter)){
+    results_all_iter <-data.frame(repeat_result)
+  }
+  else{
+    results_all_iter <- data.frame(results_all_iter, data.frame(repeat_result))
+  }  
+  results_data <-rbind(results_data,data.frame(data = name[i],tuned=tuned_final,default=default_final, improve= tuned_final-default_final))
 }
 
 
