@@ -48,7 +48,12 @@ class RF(object):
             #      'min_samples_split': np.arange(1,21,2),
             #      'min_samples_leaf': np.arange(2,21,2),
             #      'max_leaf_nodes': np.arange(10, 50,4)}]
-
+    def random_parameters(self):
+        return {'n_estimators': range(50, 151),
+                 'max_features': np.arange(0.01, 1.0, 0.01),
+                 'min_samples_split': range(1, 21),
+                 'min_samples_leaf': range(2, 21),
+                 'max_leaf_nodes': range(10, 51)}
 
 
 class CART(object):
@@ -84,3 +89,9 @@ class CART(object):
             #      'max_depth': np.arange(1,51,5),
             #      'min_samples_split': np.arange(1,21,2),
             #      'min_samples_leaf': np.arange(2,21,2)}]
+
+    def random_parameters(self):
+        return {'max_features': np.arange(0.01, 1, 0.01),
+                 'max_depth': range(1, 51),
+                 'min_samples_split': range(1, 20),
+                 'min_samples_leaf': range(2, 20)}

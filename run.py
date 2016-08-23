@@ -157,7 +157,8 @@ def start(src, randomly=True, processor=10, learner_lst=[CART, RF],
         writefile(file_name, title)
         writefile(file_name, "Dataset: " + data_name)
         for predictor in learner_lst:
-            for task in ["Naive_", "Tuned_", "Grid_"]:  # "Naive_", "Tuned_",
+            for task in ["Naive_", "Tuned_", "Grid_","Random_"]:  # "Naive_", "Tuned_",
+            # for task in ["Naive_", "Random_"]:
                 random.seed(1)
                 writefile(file_name, "-" * 30 + "\n")
                 begin_time = time.time()
@@ -182,6 +183,19 @@ def start(src, randomly=True, processor=10, learner_lst=[CART, RF],
                                                        refit=True)
                         clf.fit(train_data_X, train_data_Y)
                         # best_params = clf.best_params_
+                        predict_result = clf.predict(test_data_X)
+                        predict_pro = clf.predict_proba(test_data_X)
+                        score = sk_abcd(predict_result, test_data_Y,
+                                        predict_pro[:, 1])
+                        save_score(name, score, score_lst)
+                elif task == "Random_":
+                    new_predictor = predictor()
+                    score_fun = getScoring(goal)
+                    for _ in xrange(repeats):
+                        clf = new_predictor.default()
+                        clf = grid_search.RandomizedSearchCV(clf, new_predictor.random_parameters(),
+                             cv=2, scoring=score_fun,refit=True, n_iter=60)
+                        clf.fit(train_data_X,train_data_Y)
                         predict_result = clf.predict(test_data_X)
                         predict_pro = clf.predict_proba(test_data_X)
                         score = sk_abcd(predict_result, test_data_Y,
